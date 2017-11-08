@@ -10,7 +10,7 @@ import MLP
 import random
 
 crossover_rate = 1
-mutation_rate = 0.1
+mutation_rate = .1
 evaluation = []
 
 parent_1 = [] #[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -31,18 +31,13 @@ def crossover(p1, p2):
 	offspring_1 = []
 	offspring_2 = []
 
-	# for testing
-	for i in range(20):
-		parent_1.append(0)
-		parent_2.append(1)
-
 	if random.random() < crossover_rate:
 		# crossover occurs
 		print('Crossover occured')
 
 		# select crossover points
 		point_1 = random.randrange(0, len(parent_1))
-		point_2 = random.randrange(point_1, len(parent_1))
+		point_2 = random.randrange(point_1 + 1, len(parent_1))
 
 		offspring_1.append(parent_1[:point_1])
 		offspring_1.append(parent_2[point_1:point_2])
@@ -64,9 +59,16 @@ def flatten(input):
 	return [item for sublist in input for item in sublist]
 
 def mutate(child):
-
 	global mutation_rate
-	pass
+
+	for attribute in range(len(child)):
+		if random.random() < mutation_rate:
+			print('mutation occured')
+			# mutates an attribute by at most \pm 50%
+			child[attribute] += (random.random() - 0.5) * child[attribute]
+		else:
+			print('mutation did not occur')
+	print(str(child))
 
 def selection(population):
 	pass
@@ -75,4 +77,9 @@ def train():
 	generation = 0
 
 if __name__ == '__main__':
-	crossover(parent_1, parent_2)
+	# for testing
+	for i in range(20):
+		parent_1.append(0)
+		parent_2.append(1.0)
+
+	mutate(parent_2)
