@@ -27,7 +27,7 @@ def evaluate():
 	pass
 
 def crossover_multipoint(parents, num_children):
-	'''takes a list of parents and a desired number of children'''
+	'''takes a list of parents and produces (num_children) children with a random number of randomly selected slice points '''
 
 	global crossover_rate
 
@@ -39,16 +39,18 @@ def crossover_multipoint(parents, num_children):
 		print('generating child ' + str(index))
 		children.append([])
 		# decide each attribute for the current child
-		for attribute in range(len(parents[0]) - 1):
-			# alternates betwewn parent 1 and 2
+		for attribute in range(len(parents[0])):
 			if random.random() < crossover_rate:
-				# randomly selects a parent from parents
+				# randomly select a parent from parents
 				parent_num = int(random.random() * len(parents))
 			children[index].append(parents[parent_num][attribute])
+		print(parents[0])
 		print(children[index])
 
 
 def crossover_2point(parent_1, parent_2):
+	''' takes two parents and produces two offspring with 2 randomly selected slice points '''
+
 	global crossover_rate
 	offspring_1 = []
 	offspring_2 = []
@@ -78,9 +80,12 @@ def crossover_2point(parent_1, parent_2):
 		print('Crossover did not occur')
 
 def flatten(input):
+	''' flattens a ragged array into a 1-d array '''
 	return [item for sublist in input for item in sublist]
 
 def mutate(child):
+	''' has a (mutation_rate) chance to change each attribute randomly by up to \pm 50% '''
+
 	global mutation_rate
 
 	for attribute in range(len(child)):
@@ -100,9 +105,9 @@ def train():
 
 if __name__ == '__main__':
 	# for testing
-	for i in range(24):
+	for i in range(10):
 		p1.append(0)
-		p2.append(88)
+		p2.append(i)
 
 	p = [p1, p2]
 
