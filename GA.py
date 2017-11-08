@@ -36,7 +36,6 @@ def crossover_multipoint(parents, num_children):
 
 	# generate num_children children
 	for index in range(num_children):
-		print('generating child ' + str(index))
 		children.append([])
 		# decide each attribute for the current child
 		for attribute in range(len(parents[0])):
@@ -44,8 +43,9 @@ def crossover_multipoint(parents, num_children):
 				# randomly select a parent from parents
 				parent_num = int(random.random() * len(parents))
 			children[index].append(parents[parent_num][attribute])
-		print(parents[0])
-		print(children[index])
+	return children
+
+
 
 
 def crossover_2point(parent_1, parent_2):
@@ -71,16 +71,12 @@ def crossover_2point(parent_1, parent_2):
 		offspring_2.append(parent_1[point_1:point_2])
 		offspring_2.append(parent_2[point_2:])
 
-		print('Points: ' + str(point_1) + ', ' + str(point_2))
-		print(str(flatten(offspring_1)))
-		print(str(flatten(offspring_2)))
-
 	else:
 		# crossover does not occur
 		print('Crossover did not occur')
 
 def flatten(input):
-	''' flattens a ragged array into a 1-d array '''
+	''' flattens a ragged 2-d array into a 1-d array '''
 	return [item for sublist in input for item in sublist]
 
 def mutate(child):
@@ -90,25 +86,48 @@ def mutate(child):
 
 	for attribute in range(len(child)):
 		if random.random() < mutation_rate:
-			print('mutation occured')
+			# print('mutation occured')
 			# mutates an attribute by at most \pm 50%
 			child[attribute] += (random.random() - 0.5) * child[attribute]
 		else:
-			print('mutation did not occur')
-	print(str(child))
-
+			pass
+			# print('mutation did not occur')
+	return child
 def selection(population):
 	pass
 
 def train():
 	generation = 0
 
-if __name__ == '__main__':
-	# for testing
+def test():
+
+	print('parameters')
+	print('crossover_rate: ' + str(crossover_rate))
+	print('mutation_rate: ' + str(mutation_rate))
+
+	p1 = []
+	p2 = []
 	for i in range(10):
 		p1.append(0)
-		p2.append(i)
+		p2.append(1)
 
-	p = [p1, p2]
+	parents = [p1, p2]
 
-	crossover_multipoint(p, 10)
+	print('\nparents')
+	for parent in parents:
+		print(str(parent))
+
+	children = crossover_multipoint([p1, p2], 10)
+	print('\nchildren')
+	for individual in children:
+		print(str(individual))
+
+	for individual in children:
+		individual = mutate(individual)
+
+	print('\nmutated children')
+	for individual in children:
+		print(str(individual))
+
+if __name__ == '__main__':
+	test()
