@@ -32,7 +32,7 @@ def crossover(p1, p2):
 	offspring_2 = []
 
 	# for testing
-	for i in range(5):
+	for i in range(20):
 		parent_1.append(0)
 		parent_2.append(1)
 
@@ -48,10 +48,14 @@ def crossover(p1, p2):
 		offspring_1.append(parent_2[point_1:point_2])
 		offspring_1.append(parent_1[point_2:])
 
+		offspring_2.append(parent_2[:point_1])
+		offspring_2.append(parent_1[point_1:point_2])
+		offspring_2.append(parent_2[point_2:])
+
 		print('Points: ' + str(point_1) + ', ' + str(point_2))
-
-
 		print(str(flatten(offspring_1)))
+		print(str(flatten(offspring_2)))
+
 	else:
 		# crossover does not occur
 		print('Crossover did not occur')
@@ -60,6 +64,7 @@ def flatten(input):
 	return [item for sublist in input for item in sublist]
 
 def mutate(child):
+
 	global mutation_rate
 	pass
 
