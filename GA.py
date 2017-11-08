@@ -93,8 +93,35 @@ def mutate(child):
 			pass
 			# print('mutation did not occur')
 	return child
+
 def selection(population):
 	pass
+
+def tournament_selection(population, num_select, heat_size):
+	# UNTESTED BECAUSE WE DONT HAVE EVALUATE
+	''' selects (num_select) individuals from (population) and holds a tournament with (heat_size) heats '''
+
+	selected = []
+
+	# to select num_select individuals
+	for i in range(num_select):
+		# randomly select heat_size individuals from the population
+		heat = []
+		for individual in range(heat_size):
+			# add a random individual to heat
+			heat.append(population[(random.random() * len(population))])
+
+		# find the best individual from heat and add it to selected
+		# ASSUMING MINIMIZATION
+		min = heat[0]
+
+		for contestant in heat:
+			temp_fitness = evaluate(heat[contestant])
+			if temp_fitness < evaluate(min):
+				min = temp_fitness
+
+		selected.append(min)
+	return selected
 
 def train():
 	generation = 0
