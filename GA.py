@@ -9,12 +9,12 @@ print(thing)'''
 import MLP
 import random
 
-crossover_rate = 1
+crossover_rate = .5
 mutation_rate = .1
 evaluation = []
 
-parent_1 = [] #[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-parent_2 = [] #[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+p1 = [] #[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+p2 = [] #[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 def init_population(size):
 	population = []
@@ -26,7 +26,29 @@ def init_population(size):
 def evaluate():
 	pass
 
-def crossover(p1, p2):
+def crossover_multipoint(parents, num_children):
+	'''takes a list of parents and a desired number of children'''
+
+	global crossover_rate
+
+	children = []
+	parent_num = 0
+
+	# generate num_children children
+	for index in range(num_children):
+		print('generating child ' + str(index))
+		children.append([])
+		# decide each attribute for the current child
+		for attribute in range(len(parents[0]) - 1):
+			# alternates betwewn parent 1 and 2
+			if random.random() < crossover_rate:
+				# randomly selects a parent from parents
+				parent_num = int(random.random() * len(parents))
+			children[index].append(parents[parent_num][attribute])
+		print(children[index])
+
+
+def crossover_2point(parent_1, parent_2):
 	global crossover_rate
 	offspring_1 = []
 	offspring_2 = []
@@ -78,8 +100,10 @@ def train():
 
 if __name__ == '__main__':
 	# for testing
-	for i in range(20):
-		parent_1.append(0)
-		parent_2.append(1.0)
+	for i in range(24):
+		p1.append(0)
+		p2.append(88)
 
-	mutate(parent_2)
+	p = [p1, p2]
+
+	crossover_multipoint(p, 10)
