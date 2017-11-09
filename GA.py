@@ -1,32 +1,38 @@
-'''import itertools
-
-thing = [[['A'], ['B'], ['C']],[['D'], ['E'], ['F']]]
-
-thing = list(itertools.chain.from_iterable(thing))
-thing = list(itertools.chain.from_iterable(thing))
-print(thing)'''
-
 import MLP
 import random
+import rosen_generator as rosen
 
 crossover_rate = .5
 mutation_rate = .1
 evaluation = []
+num_inputs = 2
+training_data = rosen.generate(0, num_inputs)
+mlp = MLP.MLP(num_inputs, 1, 10, training_data)
 
 p1 = []  # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 p2 = []  # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 
 def init_population(size):
+    global mlp
+
     population = []
-    weights = MLP.get_nn()
+    weights = mlp.get_weights()
     for i in range(size):
         population.append(weights)
     return population
 
 
 def evaluate(individual):
-    return sum(individual)
+    global mlp
+
+    # Populate the network with this individual weights
+    mlp.swap_weights(individual)
+    # Forward propagate
+    mlp.feedforward()
+
+    # Return the error of this individual
+    return mlp.calc_avg_error()
 
 
 # Takes a list of parents and produces (num_children) children with a random number of randomly selected slice points
@@ -113,7 +119,6 @@ def tournament_selection(population, heat_size):
         heat = []
         for individual in range(heat_size):
             # add a random individual to heat
-
             heat.append(population[int(random.random() * len(population))])
 
         # find the best individual from heat and add it to selected
@@ -133,7 +138,31 @@ def tournament_selection(population, heat_size):
 
 
 def train():
+    global evaluation
+
     generation = 0
+    max_gen = 2000
+    pop_size = 100
+    population = init_population(pop_size)
+    heat_size = 5
+
+    # Calculate the fitness of the first individual and set all individual's fitness to it since they are all the
+    # same initially
+    first_eval = evaluate(population[0])
+    evaluation = [first_eval] * pop_size
+
+    # TODO stop when converged?
+    while (generation < max_gen):
+        # Select the best parents and use them to produce children
+        children = crossover_multipoint(tournament_selection(population), heat_size)
+
+        # Try to mutate each child
+        for i in range(len(children)):
+            children[i] = mutate(children[i])
+
+        population = tournament_selection(population + children, heat_size)
+
+        generation += 1
 
 
 def test_cross_mutate():

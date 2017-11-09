@@ -1,9 +1,10 @@
 import random
 import numpy as np
 import rosen_generator as rosen
+import itertools
 
 
-class MLP2:
+class MLP:
     def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.1,
                  iterations=1000):
         self.weights = []  # Each numpy array in this represents the weights coming into a node
@@ -19,7 +20,7 @@ class MLP2:
         print('Setting up the network with {0} inputs and {1} output(s)'.format(len(self.train_in[0]),
                                                                                 len(self.train_out[0])))
         # print('Train_in: {0}'.format(train_in))
-        # Initilize the NN with random weights and populate the activation matrix
+        # Initialize the NN with random weights and populate the activation matrix
         for i in range(num_hidden_layers + 1):
             self.weights.append([])  # append a matrix to represent a layer in the NN
             if i == 0:
@@ -52,7 +53,7 @@ class MLP2:
             # Nodes with weight arrays
             for j in range(len(self.weights[i])):
                 self.weights[i][j] = weights[:self.activation[i]]
-        self.feedforward()
+        #self.feedforward()
 
     def calc_avg_error(self):
         return np.average(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1])
@@ -69,13 +70,12 @@ class MLP2:
         for i in range(len(self.weights)):
             temp = np.zeros((len(self.weights[i]), len(self.activation[0][0])))
             for j in range(len(self.weights[i])):
-                # append all the activations to list to be converted to an np array as an actiaviton layer
+                # append all the activations to list to be converted to an np array as an activation layer
                 temp[j] = self.activation[i].transpose().dot(self.weights[i][j])
             # don't run the activation on the tanh function
             if (i == len(self.weights) - 1):
                 self.activation[i + 1] = np.array(temp)
             else:
-
                 self.activation[i + 1] = np.tanh(temp)
 
     def backprop(self):
@@ -98,7 +98,7 @@ class MLP2:
         for layer in self.activation:
             print(layer.shape)
 
-    # Calcualte the acitvations of a node given it's wieghts and the values coming into the node
+    # Calculate the activations of a node given it's wieghts and the values coming into the node
     @staticmethod
     def activ_fun(activ, weights):
         x = np.array(activ).transpose()
@@ -106,12 +106,14 @@ class MLP2:
         z = np.tanh(y.dot(x))
         return z
 
+    def get_weights(self):
+        return list(itertools.chain.from_iterable(itertools.chain.from_iterable(self.weights)))
 
 def main():
     num_inputs = 2
     training_data = rosen.generate(0, num_inputs)
-    MLP = MLP2(num_inputs, 2, 3, training_data)
-    MLP.train()
+    mlp = MLP(num_inputs, 2, 3, training_data)
+    mlp.train()
 
 
 if __name__ == "__main__":
