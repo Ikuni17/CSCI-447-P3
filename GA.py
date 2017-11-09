@@ -7,7 +7,7 @@ mutation_rate = .1
 evaluation = []
 num_inputs = 2
 training_data = rosen.generate(0, num_inputs)
-mlp = MLP.MLP(num_inputs, 1, 10, training_data)
+mlp = MLP.MLP(num_inputs, 1, 3, training_data)
 
 p1 = []  # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 p2 = []  # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -26,8 +26,10 @@ def init_population(size):
 def evaluate(individual):
     global mlp
 
+    #print(mlp.weights)
+    #print(individual)
     # Populate the network with this individual weights
-    # mlp.swap_weights(individual)
+    mlp.set_weights(individual)
     # Forward propagate
     # mlp.feedforward()
 
@@ -146,6 +148,7 @@ def tournament_selection(population, heat_size):
 
 def train():
     global evaluation
+    global mlp
 
     generation = 0
     max_gen = 2000
@@ -167,6 +170,8 @@ def train():
         for i in range(len(population)):
             population[i] = mutate(population[i])
 
+        if(generation % 10 == 0):
+            print("Generation {0}, Error: {1}".format(generation, mlp.calc_avg_error()))
         # Move to the next generation
         generation += 1
 
@@ -233,4 +238,4 @@ def test_select():
 
 
 if __name__ == '__main__':
-    test_select()
+    train()

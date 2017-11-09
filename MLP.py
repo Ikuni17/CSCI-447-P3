@@ -53,7 +53,7 @@ class MLP:
             # Nodes with weight arrays
             for j in range(len(self.weights[i])):
                 self.weights[i][j] = weights[:self.activation[i]]
-        #self.feedforward()
+        self.feedforward()
 
     def calc_avg_error(self):
         return np.average(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1])
@@ -108,6 +108,16 @@ class MLP:
 
     def get_weights(self):
         return list(itertools.chain.from_iterable(itertools.chain.from_iterable(self.weights)))
+
+    def set_weights(self, new_weights):
+        counter = 0
+
+        for i in range(len(self.weights)):
+            for j in range(len(self.weights[i])):
+                for k in range(len(self.weights[i][j])):
+                    self.weights[i][j][k] = new_weights[counter]
+                    counter += 1
+
 
 def main():
     num_inputs = 2
