@@ -103,27 +103,31 @@ def tournament_selection(population, heat_size):
 	# UNTESTED BECAUSE WE DONT HAVE EVALUATE
 	''' selects (num_select) individuals from (population) and holds a tournament with (heat_size) heats '''
 
-	num_select = 2 #len(population)
+	num_select = len(population)
 	selected = []
 
 	# to select num_select individuals
 	for i in range(num_select):
 		# randomly select heat_size individuals from the population
 		heat = []
-		for individual in range(heat_size - 1):
+		for individual in range(heat_size):
 			# add a random individual to heat
+
 			heat.append(population[int(random.random() * len(population))])
 
 		# find the best individual from heat and add it to selected
 		# ASSUMING MINIMIZATION
-		min = evaluate(heat[0])
+		if heat != []:
+			min = evaluate(heat[0])
+			min_index = 0
 
-		for contestant in heat:
-			temp_fitness = evaluate(contestant)
-			if temp_fitness < min:
-				min = temp_fitness
+			for contestant in heat:
+				temp_fitness = evaluate(contestant)
+				if temp_fitness < min:
+					min = temp_fitness
+					min_index = heat.index(contestant)
 
-		selected.append(min)
+			selected.append(heat[min_index])
 	return selected
 
 def train():
@@ -165,20 +169,28 @@ def generate_random_individual(length):
 	return individual
 
 def test_select():
-	population_size = 10
-	heat_size = 10
-	length = 2
+	population_size = 50
+	heat_size = 5
+	length = 4
 
 	population = []
 
 	for i in range(population_size):
 		population.append(generate_random_individual(length))
 
-	print('population\n' + str(population))
+	print('\ntotal')
+	original_sum = 0
+	sum = 0
+	for i in population:
+		original_sum += i[0]
 
 	population = tournament_selection(population, heat_size)
 
-	print('\nselected\n' + str(population))
+	for i in population:
+		sum += i[0]
+
+	print(str(original_sum) + '\n' + str(sum))
+
 
 if __name__ == '__main__':
 	test_select()
