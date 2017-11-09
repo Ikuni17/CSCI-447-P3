@@ -29,9 +29,8 @@ def evaluate(individual):
     return sum(individual)
 
 
+# Takes a list of parents and produces (num_children) children with a random number of randomly selected slice points
 def crossover_multipoint(parents, num_children):
-    '''takes a list of parents and produces (num_children) children with a random number of randomly selected slice points '''
-
     global crossover_rate
 
     children = []
@@ -49,9 +48,8 @@ def crossover_multipoint(parents, num_children):
     return children
 
 
+# Takes two parents and produces two offspring with 2 randomly selected slice points
 def crossover_2point(parent_1, parent_2):
-    ''' takes two parents and produces two offspring with 2 randomly selected slice points '''
-
     global crossover_rate
     offspring_1 = []
     offspring_2 = []
@@ -77,14 +75,13 @@ def crossover_2point(parent_1, parent_2):
         print('Crossover did not occur')
 
 
+# Flattens a ragged 2-d array into a 1-d array
 def flatten(input):
-    ''' flattens a ragged 2-d array into a 1-d array '''
     return [item for sublist in input for item in sublist]
 
 
+# Has a (mutation_rate) chance to change each attribute randomly by up to +/- 50%
 def mutate(child):
-    ''' has a (mutation_rate) chance to change each attribute randomly by up to +/- 50% '''
-
     global mutation_rate
 
     for attribute in range(len(child)):
@@ -96,7 +93,7 @@ def mutate(child):
                 child[attribute] += (random.random() - 0.5) * child[attribute]
         else:
             pass
-        # print('mutation did not occur')
+            # print('mutation did not occur')
     return child
 
 
@@ -104,10 +101,9 @@ def selection(population):
     pass
 
 
+# UNTESTED BECAUSE WE DONT HAVE EVALUATE
+# Selects (num_select) individuals from (population) and holds a tournament with (heat_size) heats
 def tournament_selection(population, heat_size):
-    # UNTESTED BECAUSE WE DONT HAVE EVALUATE
-    ''' selects (num_select) individuals from (population) and holds a tournament with (heat_size) heats '''
-
     num_select = len(population)
     selected = []
 
