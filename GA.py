@@ -80,13 +80,13 @@ def flatten(input):
 	return [item for sublist in input for item in sublist]
 
 def mutate(child):
-	''' has a (mutation_rate) chance to change each attribute randomly by up to \pm 50% '''
+	''' has a (mutation_rate) chance to change each attribute randomly by up to +/- 50% '''
 
 	global mutation_rate
 
 	for attribute in range(len(child)):
 		if random.random() < mutation_rate:
-			# mutates an attribute by at most \pm 50%
+			# mutates an attribute by at most +/- 50%
 			if child[attribute] == 0:
 				child[attribute] += (sum(child) / len(child))
 			else:
