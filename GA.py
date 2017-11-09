@@ -31,7 +31,7 @@ def evaluate(individual):
     # Populate the network with this individual weights
     mlp.set_weights(individual)
     # Forward propagate
-    mlp.feedforward()
+    # mlp.feedforward()
 
     # Return the error of this individual
     return mlp.calc_avg_error()
@@ -107,6 +107,13 @@ def mutate(child):
 
 def selection(population):
     pass
+
+def rank_selection(population):
+    rank_weights = []
+    for individual in population:
+        rank_weights.append(1/evaluate(individual))
+
+    return random.choices(population, rank_weights, k = len(population))
 
 
 # UNTESTED BECAUSE WE DONT HAVE EVALUATE
@@ -222,7 +229,7 @@ def test_select():
     for i in population:
         original_sum += i[0]
 
-    population = tournament_selection(population, heat_size)
+    population = rank_selection(population)
 
     for i in population:
         sum += i[0]
