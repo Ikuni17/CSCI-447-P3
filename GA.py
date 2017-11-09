@@ -147,7 +147,7 @@ def train():
     heat_size = 5
 
     # Calculate the fitness of the first individual and set all individual's fitness to it since they are all the
-    # same initially
+    # same initially, not being used currently
     first_eval = evaluate(population[0])
     evaluation = [first_eval] * pop_size
 
