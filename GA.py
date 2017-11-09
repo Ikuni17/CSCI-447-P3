@@ -163,8 +163,9 @@ def train():
         for i in range(len(population)):
             population[i] = mutate(population[i])
 
+        if(generation % 10 == 0):
+            print("Generation {0}, Error: {1}".format(generation, mlp.calc_avg_error()))
         # Move to the next generation
-        print("Generation {0}, Error: {1}".format(generation, mlp.calc_avg_error()))
         generation += 1
 
 
