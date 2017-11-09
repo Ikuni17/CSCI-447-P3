@@ -7,7 +7,7 @@ mutation_rate = .1
 evaluation = []
 num_inputs = 2
 training_data = rosen.generate(0, num_inputs)
-mlp = MLP.MLP(num_inputs, 1, 3, training_data)
+mlp = MLP.MLP(num_inputs, 1, 10, training_data)
 
 p1 = []  # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 p2 = []  # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -31,7 +31,7 @@ def evaluate(individual):
     # Populate the network with this individual weights
     mlp.set_weights(individual)
     # Forward propagate
-    # mlp.feedforward()
+    mlp.feedforward()
 
     # Return the error of this individual
     return mlp.calc_avg_error()
@@ -151,7 +151,7 @@ def train():
     global mlp
 
     generation = 0
-    max_gen = 200
+    max_gen = 2000
     pop_size = 200
     population = init_population(pop_size)
     heat_size = 10
@@ -164,7 +164,8 @@ def train():
     # TODO stop when converged?
     while (generation < max_gen):
         # Select the best parents and use them to produce pop_size children and overwrite the entire population
-        population = crossover_multipoint(tournament_selection(population, heat_size), pop_size)
+        population = crossover_multipoint(rank_selection(population), pop_size)
+        #population = crossover_multipoint(tournament_selection(population, heat_size), pop_size)
 
         # Try to mutate each child
         for i in range(len(population)):
