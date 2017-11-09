@@ -56,7 +56,7 @@ class MLP:
         self.feedforward()
 
     def calc_avg_error(self):
-        return np.average(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1])
+        return np.average(np.square(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1]))
 
     def train(self):
         for i in range(self.iterations):

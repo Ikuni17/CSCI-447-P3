@@ -17,9 +17,9 @@ def init_population(size):
     global mlp
 
     population = []
-    weights = mlp.get_weights()
+    num_weights = len(mlp.get_weights())
     for i in range(size):
-        population.append(weights)
+        population.append(generate_random_individual(num_weights))
     return population
 
 
@@ -99,8 +99,8 @@ def mutate(child):
                 child[attribute] += (sum(child) / len(child))
             else:
                 child[attribute] += (random.random() - 0.5) * child[attribute]
-        else:
-            pass
+        #else:
+        #    pass
             # print('mutation did not occur')
     return child
 
@@ -144,15 +144,15 @@ def train():
     global mlp
 
     generation = 0
-    max_gen = 2000
-    pop_size = 100
+    max_gen = 200
+    pop_size = 200
     population = init_population(pop_size)
-    heat_size = 5
+    heat_size = 10
 
     # Calculate the fitness of the first individual and set all individual's fitness to it since they are all the
     # same initially, not being used currently
-    first_eval = evaluate(population[0])
-    evaluation = [first_eval] * pop_size
+    #first_eval = evaluate(population[0])
+    #evaluation = [first_eval] * pop_size
 
     # TODO stop when converged?
     while (generation < max_gen):
@@ -163,7 +163,7 @@ def train():
         for i in range(len(population)):
             population[i] = mutate(population[i])
 
-        if(generation % 10 == 0):
+        if(generation % 5 == 0):
             print("Generation {0}, Error: {1}".format(generation, mlp.calc_avg_error()))
         # Move to the next generation
         generation += 1
@@ -202,7 +202,7 @@ def test_cross_mutate():
 def generate_random_individual(length):
     individual = []
     for i in range(length):
-        individual.append(random.random())
+        individual.append(random.uniform(1, 10000))
     return individual
 
 
