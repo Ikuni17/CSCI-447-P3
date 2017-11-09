@@ -86,9 +86,11 @@ def mutate(child):
 
 	for attribute in range(len(child)):
 		if random.random() < mutation_rate:
-			# print('mutation occured')
 			# mutates an attribute by at most \pm 50%
-			child[attribute] += (random.random() - 0.5) * child[attribute]
+			if child[attribute] == 0:
+				child[attribute] += (sum(child) / len(child))
+			else:
+				child[attribute] += (random.random() - 0.5) * child[attribute]
 		else:
 			pass
 			# print('mutation did not occur')
