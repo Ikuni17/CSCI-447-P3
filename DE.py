@@ -5,7 +5,6 @@ import numpy as np
 BETA = 0.1
 crossover_prob = 0.1
 
-
 def mutate(population):
     trial_vectors = []
     diff1 = 0
@@ -20,19 +19,14 @@ def mutate(population):
 
 
 def crossover(trial_vector, parent):
-    # Generate list of potential corssover points
-    # crossover_points = random.randrange(0, len(parent) - 1)
-    # random.shuffle(crossover_points)
-    crossover_points = random.sample(range(len(parent) - 1), k=len(parent) - 1)
+    point = random.randrange(0, len(parent)-1)
     child = parent
 
     # Force crossover for at least one point
-    point = crossover_points.pop(0)
     child[point] = trial_vector[point]
-    crossover_points.pop(0)
     for j in range(len(parent)-1):
         if random.uniform(0, 1) < crossover_prob and j != point:
-            child[j] = trial_vector[crossover_points[j]]
+            child[j] = trial_vector[point]
     return child
 
 
