@@ -7,7 +7,7 @@ mutation_rate = .1
 evaluation = []
 num_inputs = 2
 training_data = rosen.generate(0, num_inputs)
-mlp = MLP.MLP(num_inputs, 1, 10, training_data)
+mlp = MLP.MLP(num_inputs, 1, 3, training_data)
 
 p1 = []  # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 p2 = []  # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -26,10 +26,12 @@ def init_population(size):
 def evaluate(individual):
     global mlp
 
+    #print(mlp.weights)
+    #print(individual)
     # Populate the network with this individual weights
-    mlp.swap_weights(individual)
+    mlp.set_weights(individual)
     # Forward propagate
-    mlp.feedforward()
+    # mlp.feedforward()
 
     # Return the error of this individual
     return mlp.calc_avg_error()
@@ -106,6 +108,13 @@ def mutate(child):
 def selection(population):
     pass
 
+def rank_selection(population):
+    rank_weights = []
+    for individual in population:
+        rank_weights.append(1/evaluate(individual))
+
+    return random.choices(population, rank_weights, k = len(population))
+
 
 # UNTESTED BECAUSE WE DONT HAVE EVALUATE
 # Selects (num_select) individuals from (population) and holds a tournament with (heat_size) heats
@@ -139,6 +148,7 @@ def tournament_selection(population, heat_size):
 
 def train():
     global evaluation
+    global mlp
 
     generation = 0
     max_gen = 2000
@@ -153,15 +163,16 @@ def train():
 
     # TODO stop when converged?
     while (generation < max_gen):
-        # Select the best parents and use them to produce children
-        children = crossover_multipoint(tournament_selection(population), heat_size)
+        # Select the best parents and use them to produce pop_size children and overwrite the entire population
+        population = crossover_multipoint(tournament_selection(population, heat_size), pop_size)
 
         # Try to mutate each child
-        for i in range(len(children)):
-            children[i] = mutate(children[i])
+        for i in range(len(population)):
+            population[i] = mutate(population[i])
 
-        population = tournament_selection(population + children, heat_size)
-
+        if(generation % 10 == 0):
+            print("Generation {0}, Error: {1}".format(generation, mlp.calc_avg_error()))
+        # Move to the next generation
         generation += 1
 
 
@@ -218,7 +229,7 @@ def test_select():
     for i in population:
         original_sum += i[0]
 
-    population = tournament_selection(population, heat_size)
+    population = rank_selection(population)
 
     for i in population:
         sum += i[0]
@@ -227,4 +238,4 @@ def test_select():
 
 
 if __name__ == '__main__':
-    test_select()
+    train()
