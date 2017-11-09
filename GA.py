@@ -34,7 +34,7 @@ def evaluate(individual):
     # mlp.feedforward()
 
     # Return the error of this individual
-    return sum(individual)#mlp.calc_avg_error()
+    return mlp.calc_avg_error()
 
 
 # Takes a list of parents and produces (num_children) children with a random number of randomly selected slice points
