@@ -3,7 +3,7 @@ import GA
 BETA = 0.1
 crossover_prob = 0.1
 
-def mutate(population):
+def mutate(self, population):
 	trial_vectors = []
 	for i in range(len(population)):
 		while(i == diff1 or i == diff2 or diff1 == diff2):
@@ -30,7 +30,7 @@ def crossover(self, trial_vector, parent):
 def selection(self, child, parent):
 	child_perf = GA,evaluate(child)
 	parent_perf = GA,evaluate(parent)
-	# Choose the best between parents adn children
+	# Choose the best between parents and children
 	if child_perf > parent_perf:
 		return child
 	else:
