@@ -1,6 +1,8 @@
 import GA
 import random
 import numpy as np
+import MLP
+import rosen_generator as rosen
 
 BETA = 0.1
 crossover_prob = 0.1
@@ -36,8 +38,10 @@ def selection(child, parent):
     # Choose the best between parents adn children
     if child_perf > parent_perf:
         return child
+        print("child replace parent")
     else:
         return parent
+        print("child replace parent")
 
 
 def diff(first, second):
@@ -52,11 +56,14 @@ def train():
     while generation < max_gen:
         # Generate trial vectors
         trial_vectors = mutate(population)
+        #print(trial_vectors)
         # generate children from trial_vectors
         for i in range(len(trial_vectors)):
             child = crossover(trial_vectors[i], population[i])
             population[i] = selection(child, population[i])
-
+        if(generation % 5 == 0):
+            print("Generation {0}, Error: {1}".format(generation, GA.evaluate(population[0])))
+        generation += 1
 
 if __name__ == '__main__':
     train()
