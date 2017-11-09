@@ -46,18 +46,18 @@ class MLP2:
                 self.weights[i].append(np.array(temp))
         self.activation.append(np.array([]))
 
-    def swap_weights(weights){
+    def swap_weights(weights):
 		# Layers
 		for i in range(len(self.weights)):
 			# Nodes with weight arrays
             for j in range(len(self.weights[i])):
 				self.weights[i][j] = weights[:self.actiaviton[i]]
 		self.feedforward
-	}
 	
-	def calc_avg_error(){
+
+	def calc_avg_error():
 		return np.average(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1])
-	}
+
 
     def train(self):
         for i in range(self.iterations):
@@ -77,7 +77,7 @@ class MLP2:
             if (i == len(self.weights) - 1):
                 self.activation[i + 1] = np.array(temp)
             else:
-			
+
                 self.activation[i + 1] = np.tanh(temp)
 
     def backprop(self):
