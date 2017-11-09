@@ -153,15 +153,14 @@ def train():
 
     # TODO stop when converged?
     while (generation < max_gen):
-        # Select the best parents and use them to produce children
-        children = crossover_multipoint(tournament_selection(population), heat_size)
+        # Select the best parents and use them to produce pop_size children and overwrite the entire population
+        population = crossover_multipoint(tournament_selection(population, heat_size), pop_size)
 
         # Try to mutate each child
-        for i in range(len(children)):
-            children[i] = mutate(children[i])
+        for i in range(len(population)):
+            population[i] = mutate(population[i])
 
-        population = tournament_selection(population + children, heat_size)
-
+        # Move to the next generation
         generation += 1
 
 
