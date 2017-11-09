@@ -23,8 +23,8 @@ def init_population(size):
 		population.append(weights)
 	return population
 
-def evaluate():
-	pass
+def evaluate(individual):
+	return sum(individual)
 
 def crossover_multipoint(parents, num_children):
 	'''takes a list of parents and produces (num_children) children with a random number of randomly selected slice points '''
@@ -99,27 +99,28 @@ def mutate(child):
 def selection(population):
 	pass
 
-def tournament_selection(population, num_select, heat_size):
+def tournament_selection(population, heat_size):
 	# UNTESTED BECAUSE WE DONT HAVE EVALUATE
 	''' selects (num_select) individuals from (population) and holds a tournament with (heat_size) heats '''
 
+	num_select = 2 #len(population)
 	selected = []
 
 	# to select num_select individuals
 	for i in range(num_select):
 		# randomly select heat_size individuals from the population
 		heat = []
-		for individual in range(heat_size):
+		for individual in range(heat_size - 1):
 			# add a random individual to heat
-			heat.append(population[(random.random() * len(population))])
+			heat.append(population[int(random.random() * len(population))])
 
 		# find the best individual from heat and add it to selected
 		# ASSUMING MINIMIZATION
-		min = heat[0]
+		min = evaluate(heat[0])
 
 		for contestant in heat:
-			temp_fitness = evaluate(heat[contestant])
-			if temp_fitness < evaluate(min):
+			temp_fitness = evaluate(contestant)
+			if temp_fitness < min:
 				min = temp_fitness
 
 		selected.append(min)
@@ -128,8 +129,7 @@ def tournament_selection(population, num_select, heat_size):
 def train():
 	generation = 0
 
-def test():
-
+def test_cross_mutate():
 	print('parameters')
 	print('crossover_rate: ' + str(crossover_rate))
 	print('mutation_rate: ' + str(mutation_rate))
@@ -158,5 +158,27 @@ def test():
 	for individual in children:
 		print(str(individual))
 
+def generate_random_individual(length):
+	individual = []
+	for i in range(length):
+		individual.append(random.random())
+	return individual
+
+def test_select():
+	population_size = 10
+	heat_size = 10
+	length = 2
+
+	population = []
+
+	for i in range(population_size):
+		population.append(generate_random_individual(length))
+
+	print('population\n' + str(population))
+
+	population = tournament_selection(population, heat_size)
+
+	print('\nselected\n' + str(population))
+
 if __name__ == '__main__':
-	test()
+	test_select()
