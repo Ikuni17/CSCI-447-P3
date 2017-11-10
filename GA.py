@@ -151,7 +151,7 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate):
     # TODO stop when converged?
     while (generation < max_gen):
         # Select the best parents and use them to produce pop_size children and overwrite the entire population
-        population = crossover_multipoint(rank_selection(nn, population, len(population)), pop_size, crossover_rate)
+        population = crossover_multipoint(rank_selection(nn, population, pop_size), pop_size, crossover_rate)
         # population = crossover_multipoint(tournament_selection(nn, population, heat_size), pop_size)
 
         # Try to mutate each child
