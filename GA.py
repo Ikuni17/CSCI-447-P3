@@ -1,13 +1,14 @@
 import MLP
-import random
 import rosen_generator as rosen
+import time
+import random
 
 crossover_rate = .5
 mutation_rate = .1
 evaluation = []
 num_inputs = 2
 training_data = rosen.generate(0, num_inputs)
-mlp = MLP.MLP(num_inputs, 1, 10, training_data)
+mlp = MLP.MLP(num_inputs, 1, 100, training_data)
 
 p1 = []  # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 p2 = []  # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -162,6 +163,8 @@ def train():
     # first_eval = evaluate(population[0])
     # evaluation = [first_eval] * pop_size
 
+    print("Starting GA training at {0}".format(time.ctime(time.time())))
+
     # TODO stop when converged?
     while (generation < max_gen):
         # Select the best parents and use them to produce pop_size children and overwrite the entire population
@@ -177,6 +180,7 @@ def train():
         # Move to the next generation
         generation += 1
 
+    print("Finished GA training at {0}".format(time.ctime(time.time())))
 
 def test_cross_mutate():
     print('parameters')
