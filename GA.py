@@ -2,16 +2,15 @@ import MLP
 import rosen_generator as rosen
 import time
 import random
+import statistics as stats
 
 crossover_rate = .5
 mutation_rate = .1
 evaluation = []
+pop_error = []
 num_inputs = 2
 training_data = rosen.generate(0, num_inputs)
 mlp = MLP.MLP(num_inputs, 1, 100, training_data)
-
-p1 = []  # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-p2 = []  # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 
 def init_population(size):
@@ -109,9 +108,14 @@ def mutate(child):
 
 
 def rank_selection(population, pop_size):
+    global pop_error
+    pop_error = []
+
     rank_weights = []
     for individual in population:
-        rank_weights.append(1 / evaluate(individual))
+        fitness = evaluate(individual)
+        rank_weights.append(1 / fitness)
+        pop_error.append(fitness)
 
     return random.choices(population, rank_weights, k=pop_size)
 
@@ -149,6 +153,7 @@ def tournament_selection(population, heat_size):
 def train():
     global evaluation
     global mlp
+    global pop_error
 
     generation = 0
     max_gen = 2000
@@ -174,7 +179,7 @@ def train():
             population[i] = mutate(population[i])
 
         if (generation % 5 == 0):
-            print("Generation {0}, Error: {1}".format(generation, mlp.calc_avg_error()))
+            print("Generation {0}, Error: {1}".format(generation, stats.mean(pop_error)))
         # Move to the next generation
         generation += 1
 
@@ -186,6 +191,9 @@ if __name__ == '__main__':
 
 '''
 Legacy Code
+p1 = []  # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+p2 = []  # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
 # Flattens a ragged 2-d array into a 1-d array
 def flatten(input):
     return [item for sublist in input for item in sublist]
