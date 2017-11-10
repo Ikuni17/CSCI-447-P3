@@ -9,7 +9,7 @@ def add_sigmas(pop_size, individual_size):
     for i in range(pop_size):
         sigmas.append([])
         for j in range(individual_size):
-            sigmas[i].append(random.gauss(1, 1))
+            sigmas[i].append(random.gauss(0, 1))
 
     return sigmas
 
