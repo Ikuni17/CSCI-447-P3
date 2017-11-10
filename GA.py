@@ -24,6 +24,13 @@ def init_population(size):
     return population
 
 
+def generate_random_individual(length):
+    individual = []
+    for i in range(length):
+        individual.append(random.uniform(1, 10000))
+    return individual
+
+
 def evaluate(individual):
     global mlp
 
@@ -84,11 +91,6 @@ def crossover_2point(parent_1, parent_2):
         print('Crossover did not occur')
 
 
-# Flattens a ragged 2-d array into a 1-d array
-def flatten(input):
-    return [item for sublist in input for item in sublist]
-
-
 # Has a (mutation_rate) chance to change each attribute randomly by up to +/- 50%
 def mutate(child):
     global mutation_rate
@@ -104,10 +106,6 @@ def mutate(child):
                 #    pass
                 # print('mutation did not occur')
     return child
-
-
-def selection(population):
-    pass
 
 
 def rank_selection(population, pop_size):
@@ -182,6 +180,20 @@ def train():
 
     print("Finished GA training at {0}".format(time.ctime(time.time())))
 
+
+if __name__ == '__main__':
+    train()
+
+'''
+Legacy Code
+# Flattens a ragged 2-d array into a 1-d array
+def flatten(input):
+    return [item for sublist in input for item in sublist]
+
+
+def selection(population):
+    pass
+
 def test_cross_mutate():
     print('parameters')
     print('crossover_rate: ' + str(crossover_rate))
@@ -212,13 +224,6 @@ def test_cross_mutate():
         print(str(individual))
 
 
-def generate_random_individual(length):
-    individual = []
-    for i in range(length):
-        individual.append(random.uniform(1, 10000))
-    return individual
-
-
 def test_select():
     population_size = 50
     heat_size = 5
@@ -243,5 +248,4 @@ def test_select():
     print(str(original_sum) + '\n' + str(sum))
 
 
-if __name__ == '__main__':
-    train()
+'''
