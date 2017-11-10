@@ -26,8 +26,8 @@ def init_population(size):
 def evaluate(individual):
     global mlp
 
-    #print(mlp.weights)
-    #print(individual)
+    # print(mlp.weights)
+    # print(individual)
     # Populate the network with this individual weights
     mlp.set_weights(individual)
     # Forward propagate
@@ -99,21 +99,22 @@ def mutate(child):
                 child[attribute] += (sum(child) / len(child))
             else:
                 child[attribute] += (random.random() - 0.5) * child[attribute]
-        #else:
-        #    pass
-            # print('mutation did not occur')
+                # else:
+                #    pass
+                # print('mutation did not occur')
     return child
 
 
 def selection(population):
     pass
 
-def rank_selection(population):
+
+def rank_selection(population, pop_size):
     rank_weights = []
     for individual in population:
-        rank_weights.append(1/evaluate(individual))
+        rank_weights.append(1 / evaluate(individual))
 
-    return random.choices(population, rank_weights, k = len(population))
+    return random.choices(population, rank_weights, k=pop_size)
 
 
 # UNTESTED BECAUSE WE DONT HAVE EVALUATE
@@ -158,20 +159,20 @@ def train():
 
     # Calculate the fitness of the first individual and set all individual's fitness to it since they are all the
     # same initially, not being used currently
-    #first_eval = evaluate(population[0])
-    #evaluation = [first_eval] * pop_size
+    # first_eval = evaluate(population[0])
+    # evaluation = [first_eval] * pop_size
 
     # TODO stop when converged?
     while (generation < max_gen):
         # Select the best parents and use them to produce pop_size children and overwrite the entire population
-        population = crossover_multipoint(rank_selection(population), pop_size)
-        #population = crossover_multipoint(tournament_selection(population, heat_size), pop_size)
+        population = crossover_multipoint(rank_selection(population, len(population)), pop_size)
+        # population = crossover_multipoint(tournament_selection(population, heat_size), pop_size)
 
         # Try to mutate each child
         for i in range(len(population)):
             population[i] = mutate(population[i])
 
-        if(generation % 5 == 0):
+        if (generation % 5 == 0):
             print("Generation {0}, Error: {1}".format(generation, mlp.calc_avg_error()))
         # Move to the next generation
         generation += 1
