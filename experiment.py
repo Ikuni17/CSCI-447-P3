@@ -1,13 +1,27 @@
+'''
+CSCI 447: Project 3
+Group 28: Trent Baker, Logan Bonney, Bradley White
+November 13, 2017
+'''
+
 import MLP
 import GA
 import ES
 import DE
+import rosen_generator as rosen
+
 
 def perform_experiment():
-	pass
+    pass
+
 
 def print_results():
-	pass
+    pass
+
 
 def main():
-	pass
+    pass
+
+
+if __name__ == '__main__':
+    main()

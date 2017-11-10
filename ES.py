@@ -1,3 +1,9 @@
+'''
+CSCI 447: Project 3
+Group 28: Trent Baker, Logan Bonney, Bradley White
+November 13, 2017
+'''
+
 import GA
 import random
 import math
