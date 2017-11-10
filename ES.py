@@ -11,6 +11,16 @@ def add_sigmas(pop_size, individual_size):
 
     return sigmas
 
+
+def update_sigmas(sigmas):
+    tau = (1/sqrt(len(sigmas)))
+
+    for i in range(len(sigmas)):
+        sigmas[i] = sigma[i]**(tau * random.gauss(0, 1))
+
+    return sigmas
+
+
 def train():
     generation = 0
     max_gen = 2000
