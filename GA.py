@@ -143,11 +143,7 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate):
     global pop_error
 
     generation = 0
-    max_gen = max_gen
-    pop_size = pop_size
     population = init_population(nn, pop_size)
-    crossover_rate = crossover_rate
-    mutation_rate = mutation_rate
     heat_size = 10
 
     print("Starting GA training at {0}".format(time.ctime(time.time())))
