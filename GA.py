@@ -10,20 +10,12 @@ import time
 import random
 import statistics as stats
 
-crossover_rate = .5
-mutation_rate = .1
-evaluation = []
 pop_error = []
-num_inputs = 2
-training_data = rosen.generate(0, num_inputs)
-mlp = MLP.MLP(num_inputs, 1, 100, training_data)
 
 
-def init_population(size):
-    global mlp
-
+def init_population(nn, size):
     population = []
-    num_weights = len(mlp.get_weights())
+    num_weights = len(nn.get_weights())
     for i in range(size):
         population.append(generate_random_individual(num_weights))
     return population
@@ -36,24 +28,18 @@ def generate_random_individual(length):
     return individual
 
 
-def evaluate(individual):
-    global mlp
-
-    # print(mlp.weights)
-    # print(individual)
+def evaluate(nn, individual):
     # Populate the network with this individual weights
-    mlp.set_weights(individual)
+    nn.set_weights(individual)
     # Forward propagate
-    mlp.feedforward()
+    nn.feedforward()
 
     # Return the error of this individual
-    return mlp.calc_avg_error()
+    return nn.calc_avg_error()
 
 
 # Takes a list of parents and produces (num_children) children with a random number of randomly selected slice points
-def crossover_multipoint(parents, num_children):
-    global crossover_rate
-
+def crossover_multipoint(parents, num_children, crossover_rate):
     children = []
     parent_num = 0
 
@@ -70,8 +56,7 @@ def crossover_multipoint(parents, num_children):
 
 
 # Takes two parents and produces two offspring with 2 randomly selected slice points
-def crossover_2point(parent_1, parent_2):
-    global crossover_rate
+def crossover_2point(parent_1, parent_2, crossover_rate):
     offspring_1 = []
     offspring_2 = []
 
@@ -97,9 +82,7 @@ def crossover_2point(parent_1, parent_2):
 
 
 # Has a (mutation_rate) chance to change each attribute randomly by up to +/- 50%
-def mutate(child):
-    global mutation_rate
-
+def mutate(child, mutation_rate):
     for attribute in range(len(child)):
         if random.random() < mutation_rate:
             # mutates an attribute by at most +/- 50%
@@ -113,13 +96,13 @@ def mutate(child):
     return child
 
 
-def rank_selection(population, pop_size):
+def rank_selection(nn, population, pop_size):
     global pop_error
     pop_error = []
 
     rank_weights = []
     for individual in population:
-        fitness = evaluate(individual)
+        fitness = evaluate(nn, individual)
         rank_weights.append(1 / fitness)
         pop_error.append(fitness)
 
@@ -128,7 +111,7 @@ def rank_selection(population, pop_size):
 
 # UNTESTED BECAUSE WE DONT HAVE EVALUATE
 # Selects (num_select) individuals from (population) and holds a tournament with (heat_size) heats
-def tournament_selection(population, heat_size):
+def tournament_selection(nn, population, heat_size):
     num_select = len(population)
     selected = []
 
@@ -143,11 +126,11 @@ def tournament_selection(population, heat_size):
         # find the best individual from heat and add it to selected
         # ASSUMING MINIMIZATION
         if heat != []:
-            min = evaluate(heat[0])
+            min = evaluate(nn, heat[0])
             min_index = 0
 
             for contestant in heat:
-                temp_fitness = evaluate(contestant)
+                temp_fitness = evaluate(nn, contestant)
                 if temp_fitness < min:
                     min = temp_fitness
                     min_index = heat.index(contestant)
@@ -156,36 +139,31 @@ def tournament_selection(population, heat_size):
     return selected
 
 
-def train():
-    global evaluation
-    global mlp
+def train(nn, max_gen, pop_size, crossover_rate, mutation_rate):
     global pop_error
 
     generation = 0
-    max_gen = 2000
-    pop_size = 200
-    population = init_population(pop_size)
+    max_gen = max_gen
+    pop_size = pop_size
+    population = init_population(nn, pop_size)
+    crossover_rate = crossover_rate
+    mutation_rate = mutation_rate
     heat_size = 10
-
-    # Calculate the fitness of the first individual and set all individual's fitness to it since they are all the
-    # same initially, not being used currently
-    # first_eval = evaluate(population[0])
-    # evaluation = [first_eval] * pop_size
 
     print("Starting GA training at {0}".format(time.ctime(time.time())))
 
     # TODO stop when converged?
     while (generation < max_gen):
         # Select the best parents and use them to produce pop_size children and overwrite the entire population
-        population = crossover_multipoint(rank_selection(population, len(population)), pop_size)
-        # population = crossover_multipoint(tournament_selection(population, heat_size), pop_size)
+        population = crossover_multipoint(rank_selection(nn, population, len(population)), pop_size, crossover_rate)
+        # population = crossover_multipoint(tournament_selection(nn, population, heat_size), pop_size)
 
         # Try to mutate each child
         for i in range(len(population)):
-            population[i] = mutate(population[i])
+            population[i] = mutate(population[i], mutation_rate)
 
         if (generation % 5 == 0):
-            print("Generation {0}, Error: {1}".format(generation, stats.mean(pop_error)))
+            print("Generation {0}, Mean Error: {1}".format(generation, stats.mean(pop_error)))
         # Move to the next generation
         generation += 1
 
@@ -193,7 +171,10 @@ def train():
 
 
 if __name__ == '__main__':
-    train()
+    num_inputs = 2
+    training_data = rosen.generate(0, num_inputs)
+    nn = MLP.MLP(num_inputs, 1, 100, training_data)
+    train(nn, 2000, 200, 0.5, 0.1)
 
 '''
 Legacy Code

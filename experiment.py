@@ -20,7 +20,9 @@ def print_results():
 
 
 def main():
-    pass
+    num_inputs = 2
+    training_data = rosen.generate(0, num_inputs)
+    nn = MLP.MLP(num_inputs, 1, 100, training_data)
 
 
 if __name__ == '__main__':
