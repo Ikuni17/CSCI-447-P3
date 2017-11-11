@@ -29,7 +29,7 @@ class GAProcess(multiprocessing.Process):
                                                                                 self.dataset_name,
                                                                                 time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put((self.name, GA.train(nn, 1000, 100, 0.5, 0.1, self.process_ID)))
+        self.results.put((self.name, GA.train(nn, 2000, 100, 0.5, 0.1, self.process_ID)))
         print("Process {0}: Finished {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
                                                                                 self.dataset_name,
                                                                                 time.ctime(time.time())))
@@ -78,16 +78,16 @@ def main():
     for i in range(len(ga_processes)):
         result = results.get()
         plt.plot(result[1], label=str(result[0]))
-        ga_processes[i].join()
+        #ga_processes[i].join()
 
     plt.xlabel('Generation')
     plt.ylabel('Mean Squared Error')
-    # plt.yscale('log')
+    plt.yscale('log')
     plt.title('Genetic Algorithm')
     plt.legend()
-    # plt.axis([0,100,0,10000])
     plt.savefig('GA.png')
-
+    #plt.show(block=False)
+    plt.show()
 
 if __name__ == '__main__':
     main()

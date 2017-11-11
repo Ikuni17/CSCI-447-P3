@@ -22,7 +22,7 @@ def init_population(nn, size):
 def generate_random_individual(length):
     individual = []
     for i in range(length):
-        individual.append(random.uniform(1, 1000))
+        individual.append(random.uniform(1, 10))
     return individual
 
 
@@ -87,7 +87,8 @@ def mutate(child, mutation_rate):
             if child[attribute] == 0:
                 child[attribute] += (sum(child) / len(child))
             else:
-                child[attribute] += (random.random() - 0.5) * child[attribute]
+                #child[attribute] += (random.random() - 0.5) * child[attribute]
+                child[attribute] += random.uniform(-1.0, 1.0)
                 # else:
                 #    pass
                 # print('mutation did not occur')
@@ -136,7 +137,7 @@ def tournament_selection(nn, population, heat_size):
     return selected
 
 
-def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, thread_id=0):
+def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, process_id=0):
     generation = 0
     population = init_population(nn, pop_size)
     heat_size = 10
@@ -159,7 +160,7 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, thread_id=0):
         mean_error.append(temp_mean)
 
         if (generation % 100 == 0):
-            print("GA{2}: Generation {0}, Mean Error: {1}".format(generation, temp_mean, thread_id))
+            print("GA{2}: Generation {0}, Mean Error: {1}".format(generation, temp_mean, process_id))
         # Move to the next generation
         generation += 1
 
