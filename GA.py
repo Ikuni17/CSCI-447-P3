@@ -9,6 +9,7 @@ import rosen_generator as rosen
 import time
 import random
 import statistics as stats
+import matplotlib.pyplot as plt
 
 pop_error = []
 
@@ -24,7 +25,7 @@ def init_population(nn, size):
 def generate_random_individual(length):
     individual = []
     for i in range(length):
-        individual.append(random.uniform(1, 10000))
+        individual.append(random.uniform(1, 1000))
     return individual
 
 
@@ -145,6 +146,7 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate):
     generation = 0
     population = init_population(nn, pop_size)
     heat_size = 10
+    mean_error = []
 
     print("Starting GA training at {0}".format(time.ctime(time.time())))
 
@@ -155,22 +157,26 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate):
         # population = crossover_multipoint(tournament_selection(nn, population, heat_size), pop_size)
 
         # Try to mutate each child
-        for i in range(len(population)):
+        for i in range(pop_size):
             population[i] = mutate(population[i], mutation_rate)
 
+        temp_mean = stats.mean(pop_error)
+        mean_error.append(temp_mean)
+
         if (generation % 5 == 0):
-            print("Generation {0}, Mean Error: {1}".format(generation, stats.mean(pop_error)))
+            print("Generation {0}, Mean Error: {1}".format(generation, temp_mean))
         # Move to the next generation
         generation += 1
 
     print("Finished GA training at {0}".format(time.ctime(time.time())))
+    return mean_error
 
 
 if __name__ == '__main__':
     num_inputs = 2
     training_data = rosen.generate(0, num_inputs)
-    nn = MLP.MLP(num_inputs, 1, 100, training_data)
-    train(nn, 2000, 200, 0.5, 0.1)
+    nn = MLP.MLP(num_inputs, 1, 10, training_data)
+    train(nn, 2000, 100, 0.5, 0.1)
 
 '''
 Legacy Code
