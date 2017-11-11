@@ -28,7 +28,7 @@ def mutate(population):
 
 def crossover(trial_vector, parent):
     point = random.randrange(0, len(parent)-1)
-    child = parent
+    child = list(parent)
 
     # Force crossover for at least one point
     child[point] = trial_vector[point]
@@ -39,15 +39,13 @@ def crossover(trial_vector, parent):
 
 
 def selection(child, parent):
-    child_perf = GA.evaluate(child)
-    parent_perf = GA.evaluate(parent)
+    child_error = GA.evaluate(nn, child)
+    parent_error = GA.evaluate(nn, parent)
     # Choose the best between parents adn children
-    if child_perf > parent_perf:
+    if child_error < parent_error:
         return child
-        print("child replace parent")
     else:
         return parent
-        print("child replace parent")
 
 
 def diff(first, second):
@@ -58,7 +56,7 @@ def train():
     generation = 0
     max_gen = 2000
     pop_size = 100
-    population = GA.init_population(pop_size)
+    population = GA.init_population(nn, pop_size)
     while generation < max_gen:
         # Generate trial vectors
         trial_vectors = mutate(population)
@@ -68,8 +66,11 @@ def train():
             child = crossover(trial_vectors[i], population[i])
             population[i] = selection(child, population[i])
         if(generation % 5 == 0):
-            print("Generation {0}, Error: {1}".format(generation, GA.evaluate(population[0])))
+            print("Generation {0}, Error: {1}".format(generation, GA.evaluate(nn, population[0])))
         generation += 1
 
 if __name__ == '__main__':
+    num_inputs = 2
+    training_data = rosen.generate(0, num_inputs)
+    nn = MLP.MLP(num_inputs, 1, 10, training_data)
     train()
