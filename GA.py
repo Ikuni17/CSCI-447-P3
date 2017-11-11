@@ -142,7 +142,7 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, thread_id=0):
     heat_size = 10
     mean_error = []
 
-    print("Starting GA training at {0}".format(time.ctime(time.time())))
+    #print("Starting GA training at {0}".format(time.ctime(time.time())))
 
     # TODO stop when converged?
     while (generation < max_gen):
@@ -163,7 +163,7 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, thread_id=0):
         # Move to the next generation
         generation += 1
 
-    print("Finished GA training at {0}".format(time.ctime(time.time())))
+    #print("Finished GA training at {0}".format(time.ctime(time.time())))
     return mean_error
 
 

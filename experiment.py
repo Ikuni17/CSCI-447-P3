@@ -76,11 +76,9 @@ def main():
         ga_processes[i].start()
 
     for i in range(len(ga_processes)):
-        ga_processes[i].join()
-
-    for i in range(results.qsize()):
         result = results.get()
         plt.plot(result[1], label=str(result[0]))
+        ga_processes[i].join()
 
     plt.xlabel('Generation')
     plt.ylabel('Mean Squared Error')
@@ -88,7 +86,7 @@ def main():
     plt.title('Genetic Algorithm')
     plt.legend()
     # plt.axis([0,100,0,10000])
-    plt.savefig('foo.png')
+    plt.savefig('GA.png')
 
 
 if __name__ == '__main__':
