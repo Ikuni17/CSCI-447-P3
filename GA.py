@@ -9,9 +9,6 @@ import rosen_generator as rosen
 import time
 import random
 import statistics as stats
-import matplotlib.pyplot as plt
-
-pop_error = []
 
 
 def init_population(nn, size):
@@ -98,7 +95,6 @@ def mutate(child, mutation_rate):
 
 
 def rank_selection(nn, population, pop_size):
-    global pop_error
     pop_error = []
 
     rank_weights = []
@@ -107,7 +103,7 @@ def rank_selection(nn, population, pop_size):
         rank_weights.append(1 / fitness)
         pop_error.append(fitness)
 
-    return random.choices(population, rank_weights, k=pop_size)
+    return (random.choices(population, rank_weights, k=pop_size), pop_error)
 
 
 # UNTESTED BECAUSE WE DONT HAVE EVALUATE
@@ -141,8 +137,6 @@ def tournament_selection(nn, population, heat_size):
 
 
 def train(nn, max_gen, pop_size, crossover_rate, mutation_rate):
-    global pop_error
-
     generation = 0
     population = init_population(nn, pop_size)
     heat_size = 10
@@ -153,14 +147,15 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate):
     # TODO stop when converged?
     while (generation < max_gen):
         # Select the best parents and use them to produce pop_size children and overwrite the entire population
-        population = crossover_multipoint(rank_selection(nn, population, pop_size), pop_size, crossover_rate)
+        temp_tuple = rank_selection(nn, population, pop_size)
+        population = crossover_multipoint(temp_tuple[0], pop_size, crossover_rate)
         # population = crossover_multipoint(tournament_selection(nn, population, heat_size), pop_size)
 
         # Try to mutate each child
         for i in range(pop_size):
             population[i] = mutate(population[i], mutation_rate)
 
-        temp_mean = stats.mean(pop_error)
+        temp_mean = stats.mean(temp_tuple[1])
         mean_error.append(temp_mean)
 
         if (generation % 5 == 0):
