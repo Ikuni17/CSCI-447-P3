@@ -136,13 +136,13 @@ def tournament_selection(nn, population, heat_size):
     return selected
 
 
-def train(nn, max_gen, pop_size, crossover_rate, mutation_rate):
+def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, thread_id=0):
     generation = 0
     population = init_population(nn, pop_size)
     heat_size = 10
     mean_error = []
 
-    print("Starting GA training at {0}".format(time.ctime(time.time())))
+    #print("Starting GA training at {0}".format(time.ctime(time.time())))
 
     # TODO stop when converged?
     while (generation < max_gen):
@@ -158,12 +158,12 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate):
         temp_mean = stats.mean(temp_tuple[1])
         mean_error.append(temp_mean)
 
-        if (generation % 5 == 0):
-            print("Generation {0}, Mean Error: {1}".format(generation, temp_mean))
+        if (generation % 100 == 0):
+            print("GA{2}: Generation {0}, Mean Error: {1}".format(generation, temp_mean, thread_id))
         # Move to the next generation
         generation += 1
 
-    print("Finished GA training at {0}".format(time.ctime(time.time())))
+    #print("Finished GA training at {0}".format(time.ctime(time.time())))
     return mean_error
 
 

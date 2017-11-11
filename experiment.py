@@ -10,30 +10,29 @@ import ES
 import DE
 import rosen_generator as rosen
 import matplotlib.pyplot as plt
-import threading
+import multiprocessing
 import time
 
 
-class GAThread(threading.Thread):
-    def __init__(self, thread_ID, dataset_name, training_data, num_inputs, results):
-        threading.Thread.__init__(self)
-        self.thread_ID = thread_ID
-        self.name = "GA{0}".format(self.thread_ID)
+class GAProcess(multiprocessing.Process):
+    def __init__(self, process_ID, dataset_name, training_data, num_inputs, results):
+        multiprocessing.Process.__init__(self)
+        self.process_ID = process_ID
+        self.name = "GA{0}".format(self.process_ID)
         self.dataset_name = dataset_name
         self.training_data = training_data
         self.num_inputs = num_inputs
         self.results = results
 
     def run(self):
-        print("Thread {0}: Starting {1} training on {2} dataset at {3}".format(self.thread_ID, self.name,
-                                                                               self.dataset_name,
-                                                                               time.ctime(time.time())))
+        print("Process {0}: Starting {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
+                                                                                self.dataset_name,
+                                                                                time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results[self.thread_ID] = GA.train(nn, 1000, 100, 0.5, 0.1)
-        print("Thread {0}: Finished {1} training on {2} dataset at {3}".format(self.thread_ID, self.name,
-                                                                               self.dataset_name,
-                                                                               time.ctime(time.time())))
-
+        self.results.put((self.name, GA.train(nn, 1000, 100, 0.5, 0.1, self.process_ID)))
+        print("Process {0}: Finished {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
+                                                                                self.dataset_name,
+                                                                                time.ctime(time.time())))
 
 
 def perform_experiment():
@@ -63,31 +62,32 @@ def main():
     # plt.legend()
     # plt.show()
 
-    results = [None] * 10
-    ga_threads = []
-    thread_counter = 0
+    num_process = 4
+    results = multiprocessing.Queue()
+    ga_processes = []
+    process_counter = 0
 
-    for i in range(2):
+    for i in range(num_process):
         num_inputs = 2
         training_data = rosen.generate(0, num_inputs)
 
-        ga_threads.append(GAThread(thread_counter, 'Rosen', training_data, num_inputs, results))
-        thread_counter += 1
-        ga_threads[i].start()
+        ga_processes.append(GAProcess(process_counter, 'Rosen', training_data, num_inputs, results))
+        process_counter += 1
+        ga_processes[i].start()
 
-    for i in range(len(ga_threads)):
-        ga_threads[i].join()
-
-    for i in range(len(results)):
-        if results[i] is not None:
-            plt.plot(results[i], label=str(i))
+    for i in range(len(ga_processes)):
+        result = results.get()
+        plt.plot(result[1], label=str(result[0]))
+        ga_processes[i].join()
 
     plt.xlabel('Generation')
     plt.ylabel('Mean Squared Error')
-    plt.yscale('log')
+    # plt.yscale('log')
     plt.title('Genetic Algorithm')
     plt.legend()
-    plt.show()
+    # plt.axis([0,100,0,10000])
+    plt.savefig('GA.png')
+
 
 if __name__ == '__main__':
     main()
