@@ -40,7 +40,7 @@ class GAProcess(multiprocessing.Process):
 
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
-        nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
+        nn = MLP.MLP(self.num_inputs, 1, 50, self.training_data)
         # temp_list = self.results
         # self.results.append((self.name, GA.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.mutation_rate, self.process_ID)))
         result = GA.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.mutation_rate, self.process_ID)
@@ -67,7 +67,7 @@ class ESProcess(multiprocessing.Process):
 
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
-        nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
+        nn = MLP.MLP(self.num_inputs, 1, 50, self.training_data)
         # self.results.put((self.name, ES.train(nn, self.max_gen, self.pop_size, self.num_children, self.crossover_rate, self.process_ID)))
         result = ES.train(nn, self.max_gen, self.pop_size, self.num_children, self.crossover_rate, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
@@ -91,7 +91,7 @@ class DEProcess(multiprocessing.Process):
 
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
-        nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
+        nn = MLP.MLP(self.num_inputs, 1, 50, self.training_data)
         # self.results.put((self.name, DE.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.beta, self.process_ID)))
         result = DE.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.beta, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
@@ -112,7 +112,7 @@ class BPProcess(multiprocessing.Process):
 
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
-        nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
+        nn = MLP.MLP(self.num_inputs, 1, 50, self.training_data)
         # self.results.put((self.name, nn.train(self.iterations)))
         result = nn.train(self.iterations, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
@@ -135,7 +135,7 @@ def perform_experiment():
     mutation_rate = 0.1
     num_children = 100
     beta = 0.1
-    max_iter = 100000
+    max_iter = 1000000
     processes = []
     process_counter = 0
     # manager = mng.SyncManager()
