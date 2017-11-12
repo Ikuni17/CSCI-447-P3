@@ -9,6 +9,7 @@ import rosen_generator as rosen
 import time
 import random
 import statistics as stats
+import matplotlib.pyplot as plt
 
 
 def init_population(nn, size):
@@ -172,7 +173,15 @@ if __name__ == '__main__':
     num_inputs = 2
     training_data = rosen.generate(0, num_inputs)
     nn = MLP.MLP(num_inputs, 1, 10, training_data)
-    train(nn, 2000, 100, 0.5, 0.1)
+    mean_error = train(nn, 2000, 100, 0.5, 0.1)
+
+    plt.plot(mean_error, label='GA')
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('GA.png')
+    plt.legend()
+    plt.show()
 
 '''
 Legacy Code
