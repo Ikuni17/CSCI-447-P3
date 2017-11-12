@@ -16,7 +16,7 @@ def init_population(nn, size):
     population = []
     num_weights = len(nn.get_weights())
     for i in range(size):
-        population.append(generate_random_individual(num_weights))
+        population.append(nn.generate_random_individual(num_weights))
     return population
 
 
@@ -167,7 +167,6 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, process_id=0):
 
     #print("Finished GA training at {0}".format(time.ctime(time.time())))
     return mean_error
-
 
 if __name__ == '__main__':
     num_inputs = 2

@@ -14,7 +14,7 @@ import math
 
 
 class MLP:
-    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.1):
+    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.01):
         self.weights = []  # Each numpy array in this represents the weights coming into a node
         self.inputs = []
         self.train_in = []
@@ -24,15 +24,17 @@ class MLP:
         for x in training_data:
             self.train_in.append(x[:num_inputs])
             self.train_out.append(x[num_inputs:])
-        print('Setting up the network with {0} inputs and {1} output(s)'.format(len(self.train_in[0]),
-                                                                                len(self.train_out[0])))
+        self.train_in = np.array(self.train_in).astype('float64')
+        self.train_out = np.array(self.train_out).astype('float64')
+        print('Setting up the network with {0} inputs, {1} output(s), and {2} training examples.'.format(len(self.train_in[0]), len(self.train_out[0]), len(self.train_out)))
         # print('Train_in: {0}'.format(train_in))
         # Initialize the NN with random weights and populate the activation matrix
         for i in range(num_hidden_layers + 1):
             self.weights.append([])  # append a matrix to represent a layer in the NN
             if i == 0:
                 # this transposes the input to the right format and adds as the first activation layer
-                self.activation.append(np.array(self.train_in).transpose())
+                self.activation.append(self.train_in.transpose())
+                self.activation[0] = self.activation[0].astype('float64')
                 num_nodes = nodes_per_layer
                 num_weights = num_inputs
             # use the number of outputs for the last layer
@@ -50,7 +52,10 @@ class MLP:
             for j in range(num_nodes):
                 temp = []
                 for k in range(num_weights):
-                    temp.append(random.uniform(0, 1000))
+                    if(k != num_weights-1):
+                        temp.append(random.uniform(0, 10))
+                    else:
+                        temp.append(random.uniform(0, 10))
                 self.weights[i].append(np.array(temp))
         self.activation.append(np.array([]))
 
@@ -63,7 +68,16 @@ class MLP:
         self.feedforward()
 
     def calc_avg_error(self):
-        return np.average(np.square(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1]))
+        return np.average(np.square(self.train_out.transpose().astype('float64') - self.activation[len(self.activation) - 1]))
+
+    def generate_random_individual(self, length):
+        individual = []
+        for i in range(length):
+            if(i < length - len(self.train_out[0])*len(self.weights[0])):
+                individual.append(random.uniform(0, 1))
+            else:
+                individual.append(random.uniform(0, 1))
+        return individual
 
     def train(self, iterations=1000, process_ID=0):
         error_vector = []
@@ -94,8 +108,8 @@ class MLP:
 
     def backprop(self):
         # print('Expected: {0}, Actual: {1}'.format(self.train_out[0], self.activation[len(self.activation)-1]))
-        errors = np.subtract(self.activation[len(self.activation) - 1], np.array(self.train_out).transpose())[0]
-        # error = self.calc_avg_error()
+        errors = np.subtract(self.activation[len(self.activation)-1], self.train_out.transpose())[0]
+        #error = self.calc_avg_error()
         for i, layer in reversed(list(enumerate(self.weights))):
             for j in range(len(layer)):
                 activ_out = self.activation[i + 1][j]
@@ -138,7 +152,6 @@ class MLP:
                 for k in range(len(self.weights[i][j])):
                     self.weights[i][j][k] = new_weights[counter]
                     counter += 1
-
 
 def main():
     af_path = 'datasets\\converted\\airfoil.csv'
