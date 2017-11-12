@@ -86,7 +86,7 @@ if __name__ == '__main__':
     num_inputs = 2
     training_data = rosen.generate(0, num_inputs)
     nn = MLP.MLP(num_inputs, 1, 10, training_data)
-    mean_error = train(nn, 2000, 100, 0.1, 0.1)
+    mean_error = train(nn, 2000, 100, 0.5, 0.1)
 
     plt.plot(mean_error, label='DE')
     plt.xlabel('Generation')

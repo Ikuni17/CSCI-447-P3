@@ -12,14 +12,12 @@ import matplotlib.pyplot as plt
 
 
 class MLP:
-    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.001,
-                 iterations=1000):
+    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.1):
         self.weights = []  # Each numpy array in this represents the weights coming into a node
         self.inputs = []
         self.train_in = []
         self.train_out = []
         self.activation = []  # Each numpy array in this represents the activation leaving a node for every input
-        self.iterations = iterations
         self.learning_rate = learning_rate
         for x in training_data:
             self.train_in.append(x[:num_inputs])
@@ -65,10 +63,10 @@ class MLP:
     def calc_avg_error(self):
         return np.average(np.square(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1]))
 
-    def train(self):
+    def train(self, iterations=1000):
         error_vector = []
 
-        for i in range(self.iterations):
+        for i in range(iterations):
             self.feedforward()
             self.backprop()
             temp_mean = self.calc_avg_error()
@@ -99,7 +97,7 @@ class MLP:
             for j in range(len(layer)):
                 activ_out = self.activation[i + 1][j]
                 activ_in = self.activation[i][0]
-                update = 0;
+                update = 0
                 for k in range(len(errors)):
                     if i == len(self.weights) - 1:
                         modifier = -errors[k]*activ_in[k]
@@ -142,8 +140,8 @@ class MLP:
 def main():
     num_inputs = 2
     training_data = rosen.generate(0, num_inputs)
-    mlp = MLP(num_inputs, 1, 10, training_data, iterations=100000)
-    error_vector = mlp.train()
+    mlp = MLP(num_inputs, 1, 10, training_data)
+    error_vector = mlp.train(iterations=10000)
 
     plt.plot(error_vector, label='BP')
     plt.xlabel('Iteration')
