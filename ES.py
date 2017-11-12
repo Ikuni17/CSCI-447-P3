@@ -113,6 +113,6 @@ if __name__ == '__main__':
     plt.xlabel('Generation')
     plt.ylabel('Mean Squared Error')
     plt.yscale('log')
-    plt.title('ES.png')
+    plt.title('ES')
     plt.legend()
     plt.show()

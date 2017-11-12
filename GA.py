@@ -179,7 +179,7 @@ if __name__ == '__main__':
     plt.xlabel('Generation')
     plt.ylabel('Mean Squared Error')
     plt.yscale('log')
-    plt.title('GA.png')
+    plt.title('GA')
     plt.legend()
     plt.show()
 
