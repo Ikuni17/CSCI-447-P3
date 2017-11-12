@@ -4,7 +4,7 @@ import numpy as np
 
 
 def data_reader(filename):
-    base_path = 'Results\\2 HL, 10k Gen and 1M Iter\\'
+    base_path = 'Results\\1 HL, 20HN, 10k Gen, 100k Iter\\'
 
     return pandas.read_csv(base_path + filename + '.csv', header=None).T
 
@@ -51,7 +51,7 @@ def main():
 
     plt.figlegend(loc='lower right')
     plt.tight_layout()
-    plt.savefig('2 HL, 2k Gen.png')
+    plt.savefig('1 HL, 20HN, 10k Gen.png')
     plt.show()
 
 

@@ -38,7 +38,7 @@ class GAProcess(multiprocessing.Process):
 
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
-        nn = MLP.MLP(self.num_inputs, 1, 20, self.training_data)
+        nn = MLP.MLP(self.num_inputs, 1, 100, self.training_data)
         result = GA.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.mutation_rate, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
@@ -61,7 +61,7 @@ class ESProcess(multiprocessing.Process):
 
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
-        nn = MLP.MLP(self.num_inputs, 1, 20, self.training_data)
+        nn = MLP.MLP(self.num_inputs, 1, 100, self.training_data)
         result = ES.train(nn, self.max_gen, self.pop_size, self.num_children, self.crossover_rate, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
@@ -83,7 +83,7 @@ class DEProcess(multiprocessing.Process):
 
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
-        nn = MLP.MLP(self.num_inputs, 1, 20, self.training_data)
+        nn = MLP.MLP(self.num_inputs, 1, 100, self.training_data)
         result = DE.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.beta, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
@@ -102,7 +102,7 @@ class BPProcess(multiprocessing.Process):
 
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
-        nn = MLP.MLP(self.num_inputs, 1, 20, self.training_data, learning_rate=0.001)
+        nn = MLP.MLP(self.num_inputs, 1, 100, self.training_data, learning_rate=0.001)
         result = nn.train(self.iterations, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
@@ -123,7 +123,7 @@ def perform_experiment():
     mutation_rate = 0.1
     num_children = 100
     beta = 0.1
-    max_iter = 100000
+    max_iter = 10000
     processes = []
     process_counter = 0
 
