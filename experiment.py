@@ -2,6 +2,13 @@
 CSCI 447: Project 3
 Group 28: Trent Baker, Logan Bonney, Bradley White
 November 13, 2017
+
+Datasets Used:
+airfoil: Instances: 1503, Attributes: 6, Outputs: 1 (last index)
+concrete: Instances: 1030, Attributes: 9, Outputs: 1 (last index)
+forestfires: Instances: 517, Attributes: 11, Outputs: 1 (last index)
+machine: Instances: 209, Attributes: 7, Outputs: 1 (last index)
+yacht: Instances: 308, Attributes: 7, Outputs: 1 (last index)
 '''
 
 import MLP
@@ -12,7 +19,6 @@ import rosen_generator as rosen
 import matplotlib.pyplot as plt
 import multiprocessing
 import time
-
 
 class GAProcess(multiprocessing.Process):
     def __init__(self, process_ID, dataset_name, training_data, num_inputs, results):
@@ -56,6 +62,7 @@ class ESProcess(multiprocessing.Process):
                                                                                 self.dataset_name,
                                                                                 time.ctime(time.time())))
 
+
 class DEProcess(multiprocessing.Process):
     def __init__(self, process_ID, dataset_name, training_data, num_inputs, results):
         multiprocessing.Process.__init__(self)
@@ -75,6 +82,7 @@ class DEProcess(multiprocessing.Process):
         print("Process {0}: Finished {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
                                                                                 self.dataset_name,
                                                                                 time.ctime(time.time())))
+
 
 class BPProcess(multiprocessing.Process):
     def __init__(self, process_ID, dataset_name, training_data, num_inputs, results):
@@ -117,11 +125,11 @@ def main():
         num_inputs = 2
         training_data = rosen.generate(0, num_inputs)
 
-        #es_processes.append(ESProcess(process_counter, 'Rosen', training_data, num_inputs, results, num_children[i]))
+        # es_processes.append(ESProcess(process_counter, 'Rosen', training_data, num_inputs, results, num_children[i]))
         ga_processes.append(GAProcess(process_counter, 'Rosen', training_data, num_inputs, results))
         process_counter += 1
         ga_processes[i].start()
-        #es_processes[i].start()
+        # es_processes[i].start()
 
     for i in range(process_counter):
         result = results.get()
