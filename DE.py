@@ -84,7 +84,6 @@ def train(nn, max_gen, pop_size, crossover_rate, beta, process_ID=0):
 
 if __name__ == '__main__':
     num_inputs = 2
-    data = MLP.read_csv('concrete')
     training_data = rosen.generate(0, num_inputs)
     nn = MLP.MLP(num_inputs, 1, 10, training_data)
     mean_error = train(nn, 2000, 100, 0.5, 0.1)
