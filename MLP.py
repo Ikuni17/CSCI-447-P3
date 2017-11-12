@@ -67,27 +67,15 @@ class MLP:
 
     def train(self, iterations=1000, process_ID=0):
         error_vector = []
-        large_iter = False
-
-        if iterations > 50000:
-            data_freq = math.ceil(iterations / 50000)
-            large_iter = True
 
         for i in range(iterations):
             self.feedforward()
             self.backprop()
 
-            if large_iter:
-                if i % data_freq == 0:
-                    temp_mean = self.calc_avg_error()
-                    error_vector.append(temp_mean)
-                    if i % 1000 == 0:
-                        print('BP{2}: Iteration {0}, Mean Error:{1}'.format(i, temp_mean, process_ID))
-            else:
-                temp_mean = self.calc_avg_error()
-                error_vector.append(temp_mean)
-                if i % 1000 == 0:
-                    print('BP{2}: Iteration {0}, Mean Error:{1}'.format(i, temp_mean, process_ID))
+            temp_mean = self.calc_avg_error()
+            error_vector.append(temp_mean)
+            if i % 1000 == 0:
+                print('BP{2}: Iteration {0}, Mean Error:{1}'.format(i, temp_mean, process_ID))
 
         return error_vector
 
