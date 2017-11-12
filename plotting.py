@@ -4,7 +4,7 @@ import numpy as np
 
 
 def data_reader(filename):
-    base_path = 'Results\\1 HL, 20HN, 10k Gen, 100k Iter\\'
+    base_path = 'Results\\1 HL, 100HN, 10k Gen & Iter\\'
 
     return pandas.read_csv(base_path + filename + '.csv', header=None).T
 
@@ -44,14 +44,14 @@ def main():
             plt.xlabel('Generation')
             plt.ylabel('Mean Squared Error')
             plt.yscale('log')
-            plt.xlim(-100, 2000)
+            plt.xlim(-100, 10000)
             plt.ylim(0, 100000)
             #plt.legend()
         subplot += 1
 
     plt.figlegend(loc='lower right')
     plt.tight_layout()
-    plt.savefig('1 HL, 20HN, 10k Gen.png')
+    plt.savefig('1 HL, 100HN, 10k Gen.png')
     plt.show()
 
 
