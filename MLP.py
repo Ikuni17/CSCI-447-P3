@@ -8,18 +8,18 @@ import random
 import numpy as np
 import rosen_generator as rosen
 import itertools
-import csv
+import matplotlib.pyplot as plt
+import pandas
+import math
 
 
 class MLP:
-    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.001,
-                 iterations=1000):
+    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.01):
         self.weights = []  # Each numpy array in this represents the weights coming into a node
         self.inputs = []
         self.train_in = []
         self.train_out = []
         self.activation = []  # Each numpy array in this represents the activation leaving a node for every input
-        self.iterations = iterations
         self.learning_rate = learning_rate
         for x in training_data:
             self.train_in.append(x[:num_inputs])
@@ -79,12 +79,31 @@ class MLP:
                 individual.append(random.uniform(0, 1))
         return individual
 
-    def train(self):
-        for i in range(self.iterations):
+    def train(self, iterations=1000, process_ID=0):
+        error_vector = []
+        large_iter = False
+
+        if iterations > 50000:
+            data_freq = math.ceil(iterations / 50000)
+            large_iter = True
+
+        for i in range(iterations):
             self.feedforward()
             self.backprop()
-            if i % 50 == 0:
-                print('Error at iteration {0}: {1}'.format(i, self.calc_avg_error()))
+
+            if large_iter:
+                if i % data_freq == 0:
+                    temp_mean = self.calc_avg_error()
+                    error_vector.append(temp_mean)
+                    if i % 1000 == 0:
+                        print('BP{2}: Iteration {0}, Mean Error:{1}'.format(i, temp_mean, process_ID))
+            else:
+                temp_mean = self.calc_avg_error()
+                error_vector.append(temp_mean)
+                if i % 1000 == 0:
+                    print('BP{2}: Iteration {0}, Mean Error:{1}'.format(i, temp_mean, process_ID))
+
+        return error_vector
 
     # updates the activation arrays and the output
     def feedforward(self):
@@ -107,14 +126,14 @@ class MLP:
             for j in range(len(layer)):
                 activ_out = self.activation[i + 1][j]
                 activ_in = self.activation[i][0]
-                update = 0;
+                update = 0
                 for k in range(len(errors)):
                     if i == len(self.weights) - 1:
-                        modifier = errors[k]*activ_in[k]
+                        modifier = -errors[k] * activ_in[k]
                     else:
-                        modifier = activ_in[k]*errors[k]*(1-(activ_out[k]**2))
+                        modifier = activ_in[k] * errors[k] * (1 - (activ_out[k] ** 2))
                     update = update - modifier
-                self.weights[i][j] = self.weights[i][j] - self.learning_rate*update*(1/len(self.train_out))
+                self.weights[i][j] = self.weights[i][j] - self.learning_rate * update * (1 / len(self.train_out))
 
     def print_nn(self):
         print('Dimensions of weights \n --------------------------')
@@ -146,17 +165,22 @@ class MLP:
                     self.weights[i][j][k] = new_weights[counter]
                     counter += 1
 
-def read_csv(filename):
-    with open(filename, 'r') as f:
-        reader = csv.reader(f)
-        return list(reader)
-
 def main():
-    num_inputs = 2
-    data = read_csv('concrete.csv')
-    training_data = rosen.generate(0, num_inputs)
-    mlp = MLP(num_inputs, 1, 10, data)
-    mlp.train()
+    af_path = 'datasets\\converted\\airfoil.csv'
+    df = pandas.read_csv(af_path, header=None)
+    training_data = df.values.tolist()
+    # num_inputs = 2
+    # training_data = rosen.generate(0, num_inputs)
+    mlp = MLP(len(training_data[0]) - 1, 1, 10, training_data)
+    error_vector = mlp.train(iterations=1000)
+
+    plt.plot(error_vector, label='BP')
+    plt.xlabel('Iteration')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('BP')
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":

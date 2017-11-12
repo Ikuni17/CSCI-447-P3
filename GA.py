@@ -160,7 +160,7 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, process_id=0):
         temp_mean = stats.mean(temp_tuple[1])
         mean_error.append(temp_mean)
 
-        if (generation % 100 == 0):
+        if (generation % 1000 == 0):
             print("GA{2}: Generation {0}, Mean Error: {1}".format(generation, temp_mean, process_id))
         # Move to the next generation
         generation += 1
@@ -168,52 +168,19 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, process_id=0):
     #print("Finished GA training at {0}".format(time.ctime(time.time())))
     return mean_error
 
-def concrete_test():
-    data = MLP.read_csv('concrete.csv')
-    num_inputs = 8
-    nn = MLP.MLP(num_inputs, 1, 10, data)
-    mean_error = train(nn, 1000, 100, 0.5, 0.1)
-
-    plt.plot(mean_error, label='GA - concrete')
-    plt.xlabel('Generation')
-    plt.ylabel('Mean Squared Error')
-    plt.yscale('log')
-    plt.title('GA')
-    plt.legend()
-    plt.show()
-
-def airfoil_test():
-    data = MLP.read_csv('training_data\\airfoil.csv')
-    num_inputs = 5
-    nn = MLP.MLP(num_inputs, 1, 10, data)
-    mean_error = train(nn, 1000, 100, 0.5, 0.1)
-
-    plt.plot(mean_error, label='GA - airfoil')
-    plt.xlabel('Generation')
-    plt.ylabel('Mean Squared Error')
-    plt.yscale('log')
-    plt.title('GA')
-    plt.legend()
-    plt.show()
-
-def fertility_test():
-    data = MLP.read_csv('training_data\\fertility.csv')
-    num_inputs = 5
-    nn = MLP.MLP(num_inputs, 1, 10, data)
-    mean_error = train(nn, 1000, 100, 0.5, 0.1)
-
-    plt.plot(mean_error, label='GA - fertility')
-    plt.xlabel('Generation')
-    plt.ylabel('Mean Squared Error')
-    plt.yscale('log')
-    plt.title('GA')
-    plt.legend()
-    plt.show()
-
 if __name__ == '__main__':
-    #concrete_test()
-    #airfoil_test()
-    fertility_test()
+    num_inputs = 2
+    training_data = rosen.generate(0, num_inputs)
+    nn = MLP.MLP(num_inputs, 1, 10, training_data)
+    mean_error = train(nn, 2000, 100, 0.5, 0.1)
+
+    plt.plot(mean_error, label='GA')
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('GA')
+    plt.legend()
+    plt.show()
 
 '''
 Legacy Code
