@@ -114,7 +114,7 @@ class BPProcess(multiprocessing.Process):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
         # self.results.put((self.name, nn.train(self.iterations)))
-        result = nn.train(self.iterations)
+        result = nn.train(self.iterations, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')

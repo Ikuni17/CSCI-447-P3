@@ -74,7 +74,7 @@ def train(nn, max_gen, pop_size, crossover_rate, beta, process_ID=0):
         temp_mean = stats.mean(temp_vector)
         mean_error.append(temp_mean)
 
-        if (generation % 100 == 0):
+        if (generation % 1000 == 0):
             print("DE{2}: Generation {0}, Mean Error: {1}".format(generation, temp_mean, process_ID))
         generation += 1
 

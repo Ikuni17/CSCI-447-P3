@@ -63,7 +63,7 @@ class MLP:
     def calc_avg_error(self):
         return np.average(np.square(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1]))
 
-    def train(self, iterations=1000):
+    def train(self, iterations=1000, process_ID=0):
         error_vector = []
 
         for i in range(iterations):
@@ -71,8 +71,8 @@ class MLP:
             self.backprop()
             temp_mean = self.calc_avg_error()
             error_vector.append(temp_mean)
-            if i % 100 == 0:
-                print('Error at iteration {0}: {1}'.format(i, temp_mean))
+            if i % 1000 == 0:
+                print('BP{2}: Iteration {0}, Mean Error:{1}'.format(i, temp_mean, process_ID))
 
         return error_vector
 
