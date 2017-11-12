@@ -44,29 +44,15 @@ def main():
             plt.xlabel('Generation')
             plt.ylabel('Mean Squared Error')
             plt.yscale('log')
-            plt.xlim(-100, 2000)
+            plt.xlim(-100, 10000)
             plt.ylim(0, 100000)
             #plt.legend()
         subplot += 1
 
-    plt.figlegend(loc='lower right')
+    plt.figlegend(loc='center right')
     plt.tight_layout()
-    plt.savefig('Thing.png')
+    plt.savefig('1 HL, 10k Gen.png')
     plt.show()
-
-    '''df = data_reader('GA yacht')
-    print(type(df))
-
-    plt.plot(df, label='GA')
-    plt.xlabel('Generation')
-    plt.ylabel('Mean Squared Error')
-    plt.yscale('log')
-    plt.title('DE')
-    plt.legend()
-    plt.show()'''
-    #print(thing)
-    #df = pandas.DataFrame(thing, index=[0])
-    #print(df)
 
 
 if __name__ == '__main__':
