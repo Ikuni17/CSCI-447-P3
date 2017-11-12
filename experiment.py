@@ -29,7 +29,7 @@ class GAProcess(multiprocessing.Process):
                                                                                 self.dataset_name,
                                                                                 time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put((self.name, GA.train(nn, 10000, 100, 0.5, 0.1, self.process_ID)))
+        self.results.put((self.name, GA.train(nn, 100000, 100, 0.5, 0.1, self.process_ID)))
         print("Process {0}: Finished {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
                                                                                 self.dataset_name,
                                                                                 time.ctime(time.time())))
@@ -51,7 +51,7 @@ class ESProcess(multiprocessing.Process):
                                                                                 self.dataset_name,
                                                                                 time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put((self.name, ES.train(nn, 2000, 100, self.num_children, 0.5, self.process_ID)))
+        self.results.put((self.name, ES.train(nn, 100000, 100, self.num_children, 0.5, self.process_ID)))
         print("Process {0}: Finished {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
                                                                                 self.dataset_name,
                                                                                 time.ctime(time.time())))
@@ -77,11 +77,11 @@ def main():
         num_inputs = 2
         training_data = rosen.generate(0, num_inputs)
 
-        es_processes.append(ESProcess(process_counter, 'Rosen', training_data, num_inputs, results, num_children[i]))
-        #ga_processes.append(GAProcess(process_counter, 'Rosen', training_data, num_inputs, results))
+        #es_processes.append(ESProcess(process_counter, 'Rosen', training_data, num_inputs, results, num_children[i]))
+        ga_processes.append(GAProcess(process_counter, 'Rosen', training_data, num_inputs, results))
         process_counter += 1
-        #ga_processes[i].start()
-        es_processes[i].start()
+        ga_processes[i].start()
+        #es_processes[i].start()
 
     for i in range(process_counter):
         result = results.get()
@@ -91,9 +91,9 @@ def main():
     plt.xlabel('Generation')
     plt.ylabel('Mean Squared Error')
     plt.yscale('log')
-    plt.title('ES Comparison')
+    plt.title('GA')
     plt.legend()
-    plt.savefig('ES Comparison.png')
+    plt.savefig('GA.png')
     # plt.show(block=False)
     plt.show()
 

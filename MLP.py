@@ -8,6 +8,7 @@ import random
 import numpy as np
 import rosen_generator as rosen
 import itertools
+import matplotlib.pyplot as plt
 
 
 class MLP:
@@ -65,11 +66,17 @@ class MLP:
         return np.average(np.square(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1]))
 
     def train(self):
+        error_vector = []
+
         for i in range(self.iterations):
             self.feedforward()
             self.backprop()
+            temp_mean = self.calc_avg_error()
+            error_vector.append(temp_mean)
             if i % 50 == 0:
-                print('Error at iteration {0}: {1}'.format(i, self.calc_avg_error()))
+                print('Error at iteration {0}: {1}'.format(i, temp_mean))
+
+        return error_vector
 
     # updates the activation arrays and the output
     def feedforward(self):
@@ -135,8 +142,16 @@ class MLP:
 def main():
     num_inputs = 2
     training_data = rosen.generate(0, num_inputs)
-    mlp = MLP(num_inputs, 2, 8, training_data)
-    mlp.train()
+    mlp = MLP(num_inputs, 1, 10, training_data, iterations=100000)
+    error_vector = mlp.train()
+
+    plt.plot(error_vector, label='BP')
+    plt.xlabel('Iteration')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('BP.png')
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
