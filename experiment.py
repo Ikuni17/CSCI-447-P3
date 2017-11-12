@@ -25,12 +25,12 @@ import csv
 
 
 class GAProcess(multiprocessing.Process):
-    def __init__(self, process_ID, dataset_name, results, training_data, num_inputs, max_gen, pop_size, crossover_rate,
+    def __init__(self, process_ID, dataset_name, training_data, num_inputs, max_gen, pop_size, crossover_rate,
                  mutation_rate):
         multiprocessing.Process.__init__(self)
         self.process_ID = process_ID
         self.name = "GA {0}".format(dataset_name)
-        self.results = results
+        # self.results = results
         self.training_data = training_data
         self.num_inputs = num_inputs
         self.max_gen = max_gen
@@ -44,7 +44,7 @@ class GAProcess(multiprocessing.Process):
         # temp_list = self.results
         # self.results.append((self.name, GA.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.mutation_rate, self.process_ID)))
         result = GA.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.mutation_rate, self.process_ID)
-        #print(result)
+        # print(result)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
@@ -52,12 +52,12 @@ class GAProcess(multiprocessing.Process):
 
 
 class ESProcess(multiprocessing.Process):
-    def __init__(self, process_ID, dataset_name, results, training_data, num_inputs, max_gen, pop_size, crossover_rate,
+    def __init__(self, process_ID, dataset_name, training_data, num_inputs, max_gen, pop_size, crossover_rate,
                  num_children):
         multiprocessing.Process.__init__(self)
         self.process_ID = process_ID
         self.name = "ES {0}".format(dataset_name)
-        self.results = results
+        # self.results = results
         self.training_data = training_data
         self.num_inputs = num_inputs
         self.max_gen = max_gen
@@ -68,18 +68,20 @@ class ESProcess(multiprocessing.Process):
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put((self.name, ES.train(nn, self.max_gen, self.pop_size, self.num_children, self.crossover_rate,
-                                              self.process_ID)))
+        # self.results.put((self.name, ES.train(nn, self.max_gen, self.pop_size, self.num_children, self.crossover_rate, self.process_ID)))
+        result = ES.train(nn, self.max_gen, self.pop_size, self.num_children, self.crossover_rate, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
+        with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerow(result)
 
 
 class DEProcess(multiprocessing.Process):
-    def __init__(self, process_ID, dataset_name, results, training_data, num_inputs, max_gen, pop_size, crossover_rate,
-                 beta):
+    def __init__(self, process_ID, dataset_name, training_data, num_inputs, max_gen, pop_size, crossover_rate, beta):
         multiprocessing.Process.__init__(self)
         self.process_ID = process_ID
         self.name = "DE {0}".format(dataset_name)
-        self.results = results
+        # self.results = results
         self.training_data = training_data
         self.num_inputs = num_inputs
         self.max_gen = max_gen
@@ -90,17 +92,20 @@ class DEProcess(multiprocessing.Process):
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put(
-            (self.name, DE.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.beta, self.process_ID)))
+        # self.results.put((self.name, DE.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.beta, self.process_ID)))
+        result = DE.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.beta, self.process_ID)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
+        with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerow(result)
 
 
 class BPProcess(multiprocessing.Process):
-    def __init__(self, process_ID, dataset_name, results, training_data, num_inputs, iterations):
+    def __init__(self, process_ID, dataset_name, training_data, num_inputs, iterations):
         multiprocessing.Process.__init__(self)
         self.process_ID = process_ID
         self.name = "BP {0}".format(dataset_name)
-        self.results = results
+        # self.results = results
         self.training_data = training_data
         self.num_inputs = num_inputs
         self.iterations = iterations
@@ -108,8 +113,12 @@ class BPProcess(multiprocessing.Process):
     def run(self):
         print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put((self.name, nn.train(self.iterations)))
+        # self.results.put((self.name, nn.train(self.iterations)))
+        result = nn.train(self.iterations)
         print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
+        with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerow(result)
 
 
 def perform_experiment():
@@ -120,25 +129,38 @@ def perform_experiment():
     for i in range(len(csv_names)):
         datasets[csv_names[i]] = get_dataset('datasets\\converted\\{0}.csv'.format(csv_names[i]))
 
-    max_gen = 100
+    max_gen = 10000
     pop_size = 100
     crossover_rate = 0.5
     mutation_rate = 0.1
     num_children = 100
     beta = 0.1
-    max_iter = 100
+    max_iter = 100000
     processes = []
     process_counter = 0
-    manager = mng.SyncManager()
-    manager.start()
-    results = manager.list()
+    # manager = mng.SyncManager()
+    # manager.start()
+    # results = manager.list()
 
     for i in range(len(csv_names)):
-        results.append(manager.list())
+        # results.append(manager.list())
         num_inputs = len(datasets[csv_names[i]][0]) - 1
-        processes.append(
-            GAProcess(process_counter, csv_names[i], results[i], datasets[csv_names[i]], num_inputs, max_gen, pop_size,
-                      crossover_rate, mutation_rate))
+        processes.append(GAProcess(process_counter, csv_names[i], datasets[csv_names[i]], num_inputs, max_gen, pop_size,
+                                   crossover_rate, mutation_rate))
+        processes[process_counter].start()
+        process_counter += 1
+
+        processes.append(ESProcess(process_counter, csv_names[i], datasets[csv_names[i]], num_inputs, max_gen, pop_size,
+                                   crossover_rate, num_children))
+        processes[process_counter].start()
+        process_counter += 1
+
+        processes.append(DEProcess(process_counter, csv_names[i], datasets[csv_names[i]], num_inputs, max_gen, pop_size,
+                                   crossover_rate, beta))
+        processes[process_counter].start()
+        process_counter += 1
+
+        processes.append(BPProcess(process_counter, csv_names[i], datasets[csv_names[i]], num_inputs, max_iter))
         processes[process_counter].start()
         process_counter += 1
 
@@ -156,8 +178,8 @@ def perform_experiment():
     #plt.savefig('Test.png')
     plt.show()'''
 
-    print(results[1])
-    manager.join()
+    # print(results[1])
+    # manager.join()
 
 
 def print_results():

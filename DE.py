@@ -39,7 +39,7 @@ def crossover(trial_vector, parent, crossover_rate):
     return child
 
 
-def selection(child, parent):
+def selection(nn, child, parent):
     child_error = GA.evaluate(nn, child)
     parent_error = GA.evaluate(nn, parent)
     # Choose the best between parents adn children
@@ -67,7 +67,7 @@ def train(nn, max_gen, pop_size, crossover_rate, beta, process_ID=0):
         temp_vector = []
         for i in range(len(trial_vectors)):
             child = crossover(trial_vectors[i], population[i], crossover_rate)
-            temp_tuple = selection(child, population[i])
+            temp_tuple = selection(nn, child, population[i])
             population[i] = temp_tuple[0]
             temp_vector.append(temp_tuple[1])
 
