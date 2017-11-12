@@ -11,7 +11,7 @@ import itertools
 
 
 class MLP:
-    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.1,
+    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.001,
                  iterations=1000):
         self.weights = []  # Each numpy array in this represents the weights coming into a node
         self.inputs = []
@@ -49,7 +49,7 @@ class MLP:
             for j in range(num_nodes):
                 temp = []
                 for k in range(num_weights):
-                    temp.append(random.uniform(0, 10))
+                    temp.append(random.uniform(0, 1000))
                 self.weights[i].append(np.array(temp))
         self.activation.append(np.array([]))
 
@@ -67,9 +67,9 @@ class MLP:
     def train(self):
         for i in range(self.iterations):
             self.feedforward()
-            error = self.backprop()
-            if i % 100 == 0:
-                print('Error at iteration {0}: {1}'.format(i, error))
+            self.backprop()
+            if i % 50 == 0:
+                print('Error at iteration {0}: {1}'.format(i, self.calc_avg_error()))
 
     # updates the activation arrays and the output
     def feedforward(self):
@@ -86,13 +86,20 @@ class MLP:
 
     def backprop(self):
         # print('Expected: {0}, Actual: {1}'.format(self.train_out[0], self.activation[len(self.activation)-1]))
-        error = np.average(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1])
+        errors = np.subtract(self.activation[len(self.activation)-1], np.array(self.train_out).transpose())[0]
+        #error = self.calc_avg_error()
         for i, layer in reversed(list(enumerate(self.weights))):
             for j in range(len(layer)):
                 activ_out = self.activation[i + 1][j]
-                modifiers = self.learning_rate * activ_out * error
-                self.weights[i][j] = np.add(self.weights[i][j], np.sum(modifiers))
-        return error
+                activ_in = self.activation[i][0]
+                update = 0;
+                for k in range(len(errors)):
+                    if i == len(self.weights) - 1:
+                        modifier = -errors[k]*activ_in[k]
+                    else:
+                        modifier = activ_in[k]*errors[k]*(1-(activ_out[k]**2))
+                    update = update - modifier
+                self.weights[i][j] = self.weights[i][j] - self.learning_rate*update*(1/len(self.train_out))
 
     def print_nn(self):
         print('Dimensions of weights \n --------------------------')
@@ -128,7 +135,7 @@ class MLP:
 def main():
     num_inputs = 2
     training_data = rosen.generate(0, num_inputs)
-    mlp = MLP(num_inputs, 2, 3, training_data)
+    mlp = MLP(num_inputs, 2, 8, training_data)
     mlp.train()
 
 
