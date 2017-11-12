@@ -71,6 +71,7 @@ def train():
 
 if __name__ == '__main__':
     num_inputs = 2
+    data = MLP.read_csv('concrete')
     training_data = rosen.generate(0, num_inputs)
     nn = MLP.MLP(num_inputs, 1, 10, training_data)
     train()

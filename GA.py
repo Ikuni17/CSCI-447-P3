@@ -9,20 +9,21 @@ import rosen_generator as rosen
 import time
 import random
 import statistics as stats
+import matplotlib.pyplot as plt
 
 
 def init_population(nn, size):
     population = []
     num_weights = len(nn.get_weights())
     for i in range(size):
-        population.append(generate_random_individual(num_weights))
+        population.append(nn.generate_random_individual(num_weights))
     return population
 
 
 def generate_random_individual(length):
     individual = []
     for i in range(length):
-        individual.append(random.uniform(1, 10))
+        individual.append(random.uniform(1, 100))
     return individual
 
 
@@ -167,12 +168,52 @@ def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, process_id=0):
     #print("Finished GA training at {0}".format(time.ctime(time.time())))
     return mean_error
 
+def concrete_test():
+    data = MLP.read_csv('concrete.csv')
+    num_inputs = 8
+    nn = MLP.MLP(num_inputs, 1, 10, data)
+    mean_error = train(nn, 1000, 100, 0.5, 0.1)
+
+    plt.plot(mean_error, label='GA - concrete')
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('GA')
+    plt.legend()
+    plt.show()
+
+def airfoil_test():
+    data = MLP.read_csv('training_data\\airfoil.csv')
+    num_inputs = 5
+    nn = MLP.MLP(num_inputs, 1, 10, data)
+    mean_error = train(nn, 1000, 100, 0.5, 0.1)
+
+    plt.plot(mean_error, label='GA - airfoil')
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('GA')
+    plt.legend()
+    plt.show()
+
+def fertility_test():
+    data = MLP.read_csv('training_data\\fertility.csv')
+    num_inputs = 5
+    nn = MLP.MLP(num_inputs, 1, 10, data)
+    mean_error = train(nn, 1000, 100, 0.5, 0.1)
+
+    plt.plot(mean_error, label='GA - fertility')
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('GA')
+    plt.legend()
+    plt.show()
 
 if __name__ == '__main__':
-    num_inputs = 2
-    training_data = rosen.generate(0, num_inputs)
-    nn = MLP.MLP(num_inputs, 1, 10, training_data)
-    train(nn, 2000, 100, 0.5, 0.1)
+    #concrete_test()
+    #airfoil_test()
+    fertility_test()
 
 '''
 Legacy Code
