@@ -18,99 +18,155 @@ import DE
 import rosen_generator as rosen
 import matplotlib.pyplot as plt
 import multiprocessing
+import multiprocessing.managers as mng
 import time
+import pandas
+import csv
+
 
 class GAProcess(multiprocessing.Process):
-    def __init__(self, process_ID, dataset_name, training_data, num_inputs, results):
+    def __init__(self, process_ID, dataset_name, results, training_data, num_inputs, max_gen, pop_size, crossover_rate,
+                 mutation_rate):
         multiprocessing.Process.__init__(self)
         self.process_ID = process_ID
-        self.name = "GA{0}".format(self.process_ID)
-        self.dataset_name = dataset_name
+        self.name = "GA {0}".format(dataset_name)
+        self.results = results
         self.training_data = training_data
         self.num_inputs = num_inputs
-        self.results = results
+        self.max_gen = max_gen
+        self.pop_size = pop_size
+        self.crossover_rate = crossover_rate
+        self.mutation_rate = mutation_rate
 
     def run(self):
-        print("Process {0}: Starting {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
-                                                                                self.dataset_name,
-                                                                                time.ctime(time.time())))
+        print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put((self.name, GA.train(nn, 100000, 100, 0.5, 0.1, self.process_ID)))
-        print("Process {0}: Finished {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
-                                                                                self.dataset_name,
-                                                                                time.ctime(time.time())))
+        # temp_list = self.results
+        # self.results.append((self.name, GA.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.mutation_rate, self.process_ID)))
+        result = GA.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.mutation_rate, self.process_ID)
+        #print(result)
+        print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
+        with open('Results\\{0}.csv'.format(self.name), 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerow(result)
 
 
 class ESProcess(multiprocessing.Process):
-    def __init__(self, process_ID, dataset_name, training_data, num_inputs, results, num_children):
+    def __init__(self, process_ID, dataset_name, results, training_data, num_inputs, max_gen, pop_size, crossover_rate,
+                 num_children):
         multiprocessing.Process.__init__(self)
         self.process_ID = process_ID
-        self.name = "ES{0}:{1}".format(self.process_ID, num_children)
-        self.dataset_name = dataset_name
+        self.name = "ES {0}".format(dataset_name)
+        self.results = results
         self.training_data = training_data
         self.num_inputs = num_inputs
-        self.results = results
+        self.max_gen = max_gen
+        self.pop_size = pop_size
+        self.crossover_rate = crossover_rate
         self.num_children = num_children
 
     def run(self):
-        print("Process {0}: Starting {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
-                                                                                self.dataset_name,
-                                                                                time.ctime(time.time())))
+        print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put((self.name, ES.train(nn, 100000, 100, self.num_children, 0.5, self.process_ID)))
-        print("Process {0}: Finished {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
-                                                                                self.dataset_name,
-                                                                                time.ctime(time.time())))
+        self.results.put((self.name, ES.train(nn, self.max_gen, self.pop_size, self.num_children, self.crossover_rate,
+                                              self.process_ID)))
+        print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
 
 
 class DEProcess(multiprocessing.Process):
-    def __init__(self, process_ID, dataset_name, training_data, num_inputs, results):
+    def __init__(self, process_ID, dataset_name, results, training_data, num_inputs, max_gen, pop_size, crossover_rate,
+                 beta):
         multiprocessing.Process.__init__(self)
         self.process_ID = process_ID
-        self.name = "DE{0}".format(self.process_ID)
-        self.dataset_name = dataset_name
+        self.name = "DE {0}".format(dataset_name)
+        self.results = results
         self.training_data = training_data
         self.num_inputs = num_inputs
-        self.results = results
+        self.max_gen = max_gen
+        self.pop_size = pop_size
+        self.crossover_rate = crossover_rate
+        self.beta = beta
 
     def run(self):
-        print("Process {0}: Starting {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
-                                                                                self.dataset_name,
-                                                                                time.ctime(time.time())))
+        print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put((self.name, DE.train(nn, 2000, 100, 0.5, 0.1, self.process_ID)))
-        print("Process {0}: Finished {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
-                                                                                self.dataset_name,
-                                                                                time.ctime(time.time())))
+        self.results.put(
+            (self.name, DE.train(nn, self.max_gen, self.pop_size, self.crossover_rate, self.beta, self.process_ID)))
+        print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
 
 
 class BPProcess(multiprocessing.Process):
-    def __init__(self, process_ID, dataset_name, training_data, num_inputs, results):
+    def __init__(self, process_ID, dataset_name, results, training_data, num_inputs, iterations):
         multiprocessing.Process.__init__(self)
         self.process_ID = process_ID
-        self.name = "BP{0}".format(self.process_ID)
-        self.dataset_name = dataset_name
+        self.name = "BP {0}".format(dataset_name)
+        self.results = results
         self.training_data = training_data
         self.num_inputs = num_inputs
-        self.results = results
+        self.iterations = iterations
 
     def run(self):
-        print("Process {0}: Starting {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
-                                                                                self.dataset_name,
-                                                                                time.ctime(time.time())))
+        print("Process {0}: Starting {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
         nn = MLP.MLP(self.num_inputs, 1, 10, self.training_data)
-        self.results.put((self.name, nn.train(iterations=100000)))
-        print("Process {0}: Finished {1} training on {2} dataset at {3}".format(self.process_ID, self.name,
-                                                                                self.dataset_name,
-                                                                                time.ctime(time.time())))
+        self.results.put((self.name, nn.train(self.iterations)))
+        print("Process {0}: Finished {1} training at {2}".format(self.process_ID, self.name, time.ctime(time.time())))
 
 
 def perform_experiment():
-    pass
+    csv_names = ['airfoil', 'concrete', 'forestfires', 'machine', 'yacht']
+    # csv_names = ['airfoil']
+    datasets = {}
+
+    for i in range(len(csv_names)):
+        datasets[csv_names[i]] = get_dataset('datasets\\converted\\{0}.csv'.format(csv_names[i]))
+
+    max_gen = 100
+    pop_size = 100
+    crossover_rate = 0.5
+    mutation_rate = 0.1
+    num_children = 100
+    beta = 0.1
+    max_iter = 100
+    processes = []
+    process_counter = 0
+    manager = mng.SyncManager()
+    manager.start()
+    results = manager.list()
+
+    for i in range(len(csv_names)):
+        results.append(manager.list())
+        num_inputs = len(datasets[csv_names[i]][0]) - 1
+        processes.append(
+            GAProcess(process_counter, csv_names[i], results[i], datasets[csv_names[i]], num_inputs, max_gen, pop_size,
+                      crossover_rate, mutation_rate))
+        processes[process_counter].start()
+        process_counter += 1
+
+    '''for i in range(len(results)):
+        temp_results.append([])
+        for j in range(4):
+            temp_results[i].append(results[i].get())
+
+    plt.plot(results)
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('GA')
+    plt.legend()
+    #plt.savefig('Test.png')
+    plt.show()'''
+
+    print(results[1])
+    manager.join()
 
 
 def print_results():
     pass
+
+
+def get_dataset(csv_path):
+    df = pandas.read_csv(csv_path, header=None)
+    return df.values.tolist()
 
 
 def main():
@@ -147,4 +203,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    perform_experiment()

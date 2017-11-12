@@ -23,7 +23,7 @@ def init_population(nn, size):
 def generate_random_individual(length):
     individual = []
     for i in range(length):
-        individual.append(random.uniform(1, 10))
+        individual.append(random.uniform(1, 100))
     return individual
 
 

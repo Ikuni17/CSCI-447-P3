@@ -9,7 +9,7 @@ import numpy as np
 import rosen_generator as rosen
 import itertools
 import matplotlib.pyplot as plt
-
+import pandas
 
 class MLP:
     def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.1):
@@ -71,7 +71,7 @@ class MLP:
             self.backprop()
             temp_mean = self.calc_avg_error()
             error_vector.append(temp_mean)
-            if i % 50 == 0:
+            if i % 100 == 0:
                 print('Error at iteration {0}: {1}'.format(i, temp_mean))
 
         return error_vector
@@ -138,10 +138,13 @@ class MLP:
 
 
 def main():
-    num_inputs = 2
-    training_data = rosen.generate(0, num_inputs)
-    mlp = MLP(num_inputs, 1, 10, training_data)
-    error_vector = mlp.train(iterations=10000)
+    af_path = 'datasets\\converted\\airfoil.csv'
+    df = pandas.read_csv(af_path, header=None)
+    training_data = df.values.tolist()
+    #num_inputs = 2
+    #training_data = rosen.generate(0, num_inputs)
+    mlp = MLP(len(training_data[0]) - 1, 1, 10, training_data)
+    error_vector = mlp.train(iterations=1000)
 
     plt.plot(error_vector, label='BP')
     plt.xlabel('Iteration')
