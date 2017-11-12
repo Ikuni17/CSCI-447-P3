@@ -11,6 +11,7 @@ import math
 import rosen_generator as rosen
 import time
 import statistics as stats
+import matplotlib.pyplot as plt
 
 
 def add_sigmas(individual):
@@ -72,7 +73,7 @@ def train(nn, max_gen, pop_size, num_children, crossover_rate, process_id=0):
     mean_error = []
     heat_size = 10
 
-    print("Starting ES training at {0}".format(time.ctime(time.time())))
+    #print("Starting ES training at {0}".format(time.ctime(time.time())))
 
     # TODO stop when converged?
     while (generation < max_gen):
@@ -93,7 +94,8 @@ def train(nn, max_gen, pop_size, num_children, crossover_rate, process_id=0):
         # Move to the next generation
         generation += 1
 
-    print("Finished ES training at {0}".format(time.ctime(time.time())))
+    #print("Finished ES training at {0}".format(time.ctime(time.time())))
+    return mean_error
 
 
 def print_pop(population):
@@ -105,4 +107,12 @@ if __name__ == '__main__':
     num_inputs = 2
     training_data = rosen.generate(0, num_inputs)
     nn = MLP.MLP(num_inputs, 1, 10, training_data)
-    train(nn, 1000, 100, 20, 0.5)
+    mean_error = train(nn, 2000, 100, 100, 0.5)
+
+    plt.plot(mean_error, label='ES')
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('ES.png')
+    plt.legend()
+    plt.show()

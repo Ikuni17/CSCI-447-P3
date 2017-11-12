@@ -8,17 +8,16 @@ import random
 import numpy as np
 import rosen_generator as rosen
 import itertools
+import matplotlib.pyplot as plt
 
 
 class MLP:
-    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.1,
-                 iterations=1000):
+    def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.1):
         self.weights = []  # Each numpy array in this represents the weights coming into a node
         self.inputs = []
         self.train_in = []
         self.train_out = []
         self.activation = []  # Each numpy array in this represents the activation leaving a node for every input
-        self.iterations = iterations
         self.learning_rate = learning_rate
         for x in training_data:
             self.train_in.append(x[:num_inputs])
@@ -49,7 +48,7 @@ class MLP:
             for j in range(num_nodes):
                 temp = []
                 for k in range(num_weights):
-                    temp.append(random.uniform(0, 10))
+                    temp.append(random.uniform(0, 1000))
                 self.weights[i].append(np.array(temp))
         self.activation.append(np.array([]))
 
@@ -64,12 +63,18 @@ class MLP:
     def calc_avg_error(self):
         return np.average(np.square(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1]))
 
-    def train(self):
-        for i in range(self.iterations):
+    def train(self, iterations=1000):
+        error_vector = []
+
+        for i in range(iterations):
             self.feedforward()
-            error = self.backprop()
-            if i % 100 == 0:
-                print('Error at iteration {0}: {1}'.format(i, error))
+            self.backprop()
+            temp_mean = self.calc_avg_error()
+            error_vector.append(temp_mean)
+            if i % 50 == 0:
+                print('Error at iteration {0}: {1}'.format(i, temp_mean))
+
+        return error_vector
 
     # updates the activation arrays and the output
     def feedforward(self):
@@ -86,13 +91,20 @@ class MLP:
 
     def backprop(self):
         # print('Expected: {0}, Actual: {1}'.format(self.train_out[0], self.activation[len(self.activation)-1]))
-        error = np.average(np.array(self.train_out).transpose() - self.activation[len(self.activation) - 1])
+        errors = np.subtract(self.activation[len(self.activation)-1], np.array(self.train_out).transpose())[0]
+        #error = self.calc_avg_error()
         for i, layer in reversed(list(enumerate(self.weights))):
             for j in range(len(layer)):
                 activ_out = self.activation[i + 1][j]
-                modifiers = self.learning_rate * activ_out * error
-                self.weights[i][j] = np.add(self.weights[i][j], np.sum(modifiers))
-        return error
+                activ_in = self.activation[i][0]
+                update = 0
+                for k in range(len(errors)):
+                    if i == len(self.weights) - 1:
+                        modifier = -errors[k]*activ_in[k]
+                    else:
+                        modifier = activ_in[k]*errors[k]*(1-(activ_out[k]**2))
+                    update = update - modifier
+                self.weights[i][j] = self.weights[i][j] - self.learning_rate*update*(1/len(self.train_out))
 
     def print_nn(self):
         print('Dimensions of weights \n --------------------------')
@@ -128,8 +140,16 @@ class MLP:
 def main():
     num_inputs = 2
     training_data = rosen.generate(0, num_inputs)
-    mlp = MLP(num_inputs, 2, 3, training_data)
-    mlp.train()
+    mlp = MLP(num_inputs, 1, 10, training_data)
+    error_vector = mlp.train(iterations=10000)
+
+    plt.plot(error_vector, label='BP')
+    plt.xlabel('Iteration')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.title('BP.png')
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
