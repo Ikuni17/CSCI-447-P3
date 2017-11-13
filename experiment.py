@@ -3,6 +3,9 @@ CSCI 447: Project 3
 Group 28: Trent Baker, Logan Bonney, Bradley White
 November 13, 2017
 
+Main script to run the Evolutionary Algorithms. Some functionality requires Python 3.6 and third party libraries.
+
+
 Datasets Used:
 airfoil: Instances: 1503, Attributes: 6, Outputs: 1 (last index)
 concrete: Instances: 1030, Attributes: 9, Outputs: 1 (last index)
@@ -11,15 +14,15 @@ machine: Instances: 209, Attributes: 7, Outputs: 1 (last index)
 yacht: Instances: 308, Attributes: 7, Outputs: 1 (last index)
 '''
 
-import MLP
-import GA
-import ES
 import DE
+import ES
+import GA
+import MLP
+import csv
 import matplotlib.pyplot as plt
 import multiprocessing
-import time
 import pandas
-import csv
+import time
 
 
 # Class to start a GA in it's own process
@@ -180,10 +183,13 @@ def get_dataset(csv_path):
     return df.values.tolist()
 
 
+# Returns a user's choice for dataset to test
 def choose_dataset():
     valid_response = False
     print("Choose a dataset:")
     print("1. Airfoil\n2. Concrete\n3. Forest Fires\n4. Machine\n5. Yacht\n6. Exit")
+
+    # Loop until a valid response is received
     while not valid_response:
         try:
             choice = int(input("> "))
@@ -219,6 +225,7 @@ def choose_dataset():
             print("Please enter a valid response")
 
 
+# Create a graph from a user's choosen algorithm
 def plot_choice(filename):
     data = pandas.read_csv('Results\\' + filename + '.csv', header=None).T
     plt.plot(data)
@@ -229,6 +236,7 @@ def plot_choice(filename):
     plt.show()
 
 
+# Allow the user to choose an algorithm to test
 def choose_algorithm():
     # Maximum number of generations for all Evolutionary Algorithms (EA): GA, ES, DE
     max_gen = 1000
@@ -248,6 +256,8 @@ def choose_algorithm():
     valid_response = False
     print("Choose an algorithm to train with:")
     print("1. Genetic Algorithm\n2. Evolutionary Strategy\n3. Differential Evolution\n4. Backpropagation\n5. Exit")
+
+    # Loop until a valid response is received
     while not valid_response:
         try:
             choice = int(input("> "))
@@ -257,14 +267,19 @@ def choose_algorithm():
 
         if choice == 1:
             valid_response = True
+            # Get the chosen dataset
             temp = choose_dataset()
             print("Creating GA Process with {0} generations and {1} population size".format(max_gen, pop_size))
+            # Create a new process
             ga_proccess = GAProcess(0, temp[0], temp[1], len(temp[1][0]) - 1, max_gen, pop_size, crossover_rate,
                                     mutation_rate)
+            # Start the process, then wait for it join
             ga_proccess.start()
             ga_proccess.join()
+            # Plot the results
             plot_choice('GA {0}'.format(temp[0]))
 
+        # Same flow as choice 1
         elif choice == 2:
             valid_response = True
             temp = choose_dataset()
@@ -275,6 +290,7 @@ def choose_algorithm():
             es_process.join()
             plot_choice('ES {0}'.format(temp[0]))
 
+        # Same flow as choice 1
         elif choice == 3:
             valid_response = True
             temp = choose_dataset()
@@ -284,6 +300,7 @@ def choose_algorithm():
             de_process.join()
             plot_choice('DE {0}'.format(temp[0]))
 
+        # Same flow as choice 1
         elif choice == 4:
             valid_response = True
             temp = choose_dataset()
@@ -301,9 +318,11 @@ def choose_algorithm():
             print("Please enter a valid response")
 
 
+# Run the test used for submission, which runs all algorithms concurrently on the same dataset and plots the results.
 def submission_test():
     data = get_dataset('datasets\\converted\\machine.csv')
     algorithms = ['BP', 'DE', 'ES', 'GA']
+    # Maximum number of generations for the Evolutionary Algorithms (EA)
     max_gen = 1000
     # Maximum population size for EA
     pop_size = 100
@@ -321,9 +340,9 @@ def submission_test():
     processes = []
     # Number of processes, used for unique IDs
     process_counter = 0
-
     num_inputs = len(data[0]) - 1
 
+    # Start each algorithm in its own process
     processes.append(
         GAProcess(process_counter, 'machine', data, num_inputs, max_gen, pop_size, crossover_rate, mutation_rate))
     processes[process_counter].start()
@@ -343,15 +362,19 @@ def submission_test():
     processes[process_counter].start()
     process_counter += 1
 
+    # Wait to join all the processes
     for process in processes:
         process.join()
 
+    # Plot a large figure
     plt.figure(figsize=(25.5, 13.5), dpi=100)
 
+    # Add all results to a plot
     for alg in algorithms:
         temp_df = pandas.read_csv('Results\\' + alg + ' machine.csv', header=None).T
         plt.plot(temp_df, label=alg)
 
+    # Set the plot parameters and show it
     plt.title('Machine Dataset')
     plt.xlabel('Generation')
     plt.ylabel('Mean Squared Error')
@@ -361,10 +384,14 @@ def submission_test():
     plt.legend()
     plt.show()
 
+
+# Prompts the user to pick start the experiment, a single algorithm, or the submission test
 def main():
     valid_response = False
     print("Choose an option:")
     print("1. Perform Experiment (WARNING CPU INTENSIVE)\n2. Choose Algorithm\n3. Run Submission Test\n4. Exit")
+
+    # Loop until a valid response is received
     while not valid_response:
         try:
             choice = int(input("> "))
@@ -390,37 +417,6 @@ def main():
 
         else:
             print("Please enter a valid response")
-
-    '''num_process = 4
-    results = multiprocessing.Queue()
-    ga_processes = []
-    es_processes = []
-    num_children = [100, 150, 200, 250]
-    process_counter = 0
-
-    for i in range(num_process):
-        num_inputs = 2
-        training_data = rosen.generate(0, num_inputs)
-
-        # es_processes.append(ESProcess(process_counter, 'Rosen', training_data, num_inputs, results, num_children[i]))
-        ga_processes.append(GAProcess(process_counter, 'Rosen', training_data, num_inputs, results))
-        process_counter += 1
-        ga_processes[i].start()
-        # es_processes[i].start()
-
-    for i in range(process_counter):
-        result = results.get()
-        plt.plot(result[1], label=str(result[0]))
-        # ga_processes[i].join()
-
-    plt.xlabel('Generation')
-    plt.ylabel('Mean Squared Error')
-    plt.yscale('log')
-    plt.title('GA')
-    plt.legend()
-    plt.savefig('GA.png')
-    # plt.show(block=False)
-    plt.show()'''
 
 
 if __name__ == '__main__':

@@ -2,17 +2,18 @@
 CSCI 447: Project 3
 Group 28: Trent Baker, Logan Bonney, Bradley White
 November 13, 2017
+
+This file contain the functionality to create a neural network and train it with forward and backward propagation.
 '''
 
-import random
-import numpy as np
-import rosen_generator as rosen
 import itertools
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas
-import math
+import random
 
 
+# Class to represent a neural network
 class MLP:
     def __init__(self, num_inputs, num_hidden_layers, nodes_per_layer, training_data, learning_rate=0.01):
         self.weights = []  # Each numpy array in this represents the weights coming into a node
@@ -21,13 +22,19 @@ class MLP:
         self.train_out = []
         self.activation = []  # Each numpy array in this represents the activation leaving a node for every input
         self.learning_rate = learning_rate
+
+        # Slice the training data into inputs and outputs and store each in a matrix
         for x in training_data:
             self.train_in.append(x[:num_inputs])
             self.train_out.append(x[num_inputs:])
+
+        # Convert to numpy arrays for linear algebra
         self.train_in = np.array(self.train_in).astype('float64')
         self.train_out = np.array(self.train_out).astype('float64')
-        print('Setting up the network with {0} inputs, {1} output(s), and {2} training examples.'.format(len(self.train_in[0]), len(self.train_out[0]), len(self.train_out)))
-        # print('Train_in: {0}'.format(train_in))
+
+        print('Setting up the network with {0} inputs, {1} output(s), and {2} training examples.'.format(
+            len(self.train_in[0]), len(self.train_out[0]), len(self.train_out)))
+
         # Initialize the NN with random weights and populate the activation matrix
         for i in range(num_hidden_layers + 1):
             self.weights.append([])  # append a matrix to represent a layer in the NN
@@ -52,33 +59,29 @@ class MLP:
             for j in range(num_nodes):
                 temp = []
                 for k in range(num_weights):
-                    if(k != num_weights-1):
+                    if (k != num_weights - 1):
                         temp.append(random.uniform(0, 10))
                     else:
                         temp.append(random.uniform(0, 10))
                 self.weights[i].append(np.array(temp))
         self.activation.append(np.array([]))
 
-    def swap_weights(self, weights):
-        # Layers
-        for i in range(len(self.weights)):
-            # Nodes with weight arrays
-            for j in range(len(self.weights[i])):
-                self.weights[i][j] = weights[:self.activation[i]]
-        self.feedforward()
-
+    # Calculate the average error for a set of weights for all inputs
     def calc_avg_error(self):
-        return np.average(np.square(self.train_out.transpose().astype('float64') - self.activation[len(self.activation) - 1]))
+        return np.average(
+            np.square(self.train_out.transpose().astype('float64') - self.activation[len(self.activation) - 1]))
 
+    # Generate a random individual for Evolutionary Algorithms
     def generate_random_individual(self, length):
         individual = []
         for i in range(length):
-            if(i < length - len(self.train_out[0])*len(self.weights[0])):
+            if (i < length - len(self.train_out[0]) * len(self.weights[0])):
                 individual.append(random.uniform(0, 1))
             else:
                 individual.append(random.uniform(0, 1))
         return individual
 
+    # Train the neural network with forward and backward propagation
     def train(self, iterations=1000, process_ID=0):
         error_vector = []
 
@@ -86,8 +89,11 @@ class MLP:
             self.feedforward()
             self.backprop()
 
+            # Calculate the mean for this iteration
             temp_mean = self.calc_avg_error()
             error_vector.append(temp_mean)
+
+            # Periodically print the progress
             if i % 1000 == 0:
                 print('BP{2}: Iteration {0}, Mean Error: {1}'.format(i, temp_mean, process_ID))
 
@@ -107,9 +113,8 @@ class MLP:
                 self.activation[i + 1] = np.tanh(temp)
 
     def backprop(self):
-        # print('Expected: {0}, Actual: {1}'.format(self.train_out[0], self.activation[len(self.activation)-1]))
-        errors = np.subtract(self.activation[len(self.activation)-1], self.train_out.transpose())[0]
-        #error = self.calc_avg_error()
+        errors = np.subtract(self.activation[len(self.activation) - 1], self.train_out.transpose())[0]
+
         for i, layer in reversed(list(enumerate(self.weights))):
             for j in range(len(layer)):
                 activ_out = self.activation[i + 1][j]
@@ -141,9 +146,11 @@ class MLP:
         z = np.tanh(y.dot(x))
         return z
 
+    # Flatten the weights into a 1D array
     def get_weights(self):
         return list(itertools.chain.from_iterable(itertools.chain.from_iterable(self.weights)))
 
+    # Expand a 1D array into the matrix used for forward propagation
     def set_weights(self, new_weights):
         counter = 0
 
@@ -153,12 +160,12 @@ class MLP:
                     self.weights[i][j][k] = new_weights[counter]
                     counter += 1
 
+
+# Used for testing this file on its own
 def main():
     af_path = 'datasets\\converted\\airfoil.csv'
     df = pandas.read_csv(af_path, header=None)
     training_data = df.values.tolist()
-    # num_inputs = 2
-    # training_data = rosen.generate(0, num_inputs)
     mlp = MLP(len(training_data[0]) - 1, 1, 10, training_data)
     error_vector = mlp.train(iterations=1000)
 

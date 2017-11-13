@@ -2,33 +2,34 @@
 CSCI 447: Project 3
 Group 28: Trent Baker, Logan Bonney, Bradley White
 November 13, 2017
+
+This file contains the functionality for the Genetic Algorithm. Some of which is inherited by ES and DE.
 '''
 
 import MLP
-import rosen_generator as rosen
-import time
+import matplotlib.pyplot as plt
+import pandas
 import random
 import statistics as stats
-import matplotlib.pyplot as plt
+import time
 
 
+# Create a population of individual chromosomes, based on the size of the Neural Network
+# The population is a matrix, where each individual is a vector of weights within it
 def init_population(nn, size):
     population = []
+    # Get the size of the network
     num_weights = len(nn.get_weights())
+    # Randomize the individuals slightly, for genetic diversity
     for i in range(size):
         population.append(nn.generate_random_individual(num_weights))
     return population
 
 
-def generate_random_individual(length):
-    individual = []
-    for i in range(length):
-        individual.append(random.uniform(1, 100))
-    return individual
-
-
+# Determine the fitness of an individual by putting their weights into the neural network, forward propagating, and
+# then calculating the individual
 def evaluate(nn, individual):
-    # Populate the network with this individual weights
+    # Populate the network with this individual's weights
     nn.set_weights(individual)
     # Forward propagate
     nn.feedforward()
@@ -48,86 +49,64 @@ def crossover_multipoint(parents, num_children, crossover_rate):
         # decide each attribute for the current child
         for attribute in range(len(parents[0])):
             if random.random() < crossover_rate:
-                # randomly select a parent from parents
+                # randomly select a parent from parents if we're within the crossover rate
                 parent_num = int(random.random() * len(parents))
+            # Add the attribute to the child
             children[index].append(parents[parent_num][attribute])
     return children
 
 
-# Takes two parents and produces two offspring with 2 randomly selected slice points
-def crossover_2point(parent_1, parent_2, crossover_rate):
-    offspring_1 = []
-    offspring_2 = []
-
-    if random.random() < crossover_rate:
-        # crossover occurs
-        print('Crossover occured')
-
-        # select crossover points
-        point_1 = random.randrange(0, len(parent_1))
-        point_2 = random.randrange(point_1 + 1, len(parent_1))
-
-        offspring_1.append(parent_1[:point_1])
-        offspring_1.append(parent_2[point_1:point_2])
-        offspring_1.append(parent_1[point_2:])
-
-        offspring_2.append(parent_2[:point_1])
-        offspring_2.append(parent_1[point_1:point_2])
-        offspring_2.append(parent_2[point_2:])
-
-    else:
-        # crossover does not occur
-        print('Crossover did not occur')
-
-
-# Has a (mutation_rate) chance to change each attribute randomly by up to +/- 50%
+# Has a (mutation_rate) chance to change each attribute by a random number between -1.0 and 1.0
 def mutate(child, mutation_rate):
+    # Try to mutate each attribute
     for attribute in range(len(child)):
         if random.random() < mutation_rate:
-            # mutates an attribute by at most +/- 50%
-            if child[attribute] == 0:
-                child[attribute] += (sum(child) / len(child))
-            else:
-                #child[attribute] += (random.random() - 0.5) * child[attribute]
-                child[attribute] += random.uniform(-1.0, 1.0)
-                # else:
-                #    pass
-                # print('mutation did not occur')
+            # If we are within the rate, creep the attribute
+            child[attribute] += random.uniform(-1.0, 1.0)
+
     return child
 
 
+# Rank each individual based on their fitness, then choose a pop_size population from them probabilistically
 def rank_selection(nn, population, pop_size):
+    # Keep track of the whole population's fitness for output later
     pop_error = []
-
     rank_weights = []
+
+    # Evaluate each individual
     for individual in population:
+        # Get the fitness for this individual
         fitness = evaluate(nn, individual)
+        # Get their ranking
         rank_weights.append(1 / fitness)
+        # Added their error to the vector
         pop_error.append(fitness)
 
+    # Return a pop_size population, choosen probabilistically based on their weights, and the population error vector
     return (random.choices(population, rank_weights, k=pop_size), pop_error)
 
 
-# UNTESTED BECAUSE WE DONT HAVE EVALUATE
+# Alternative selection algorithm, slower than rank_selection and unused currently
 # Selects (num_select) individuals from (population) and holds a tournament with (heat_size) heats
 def tournament_selection(nn, population, heat_size):
     num_select = len(population)
     selected = []
 
-    # to select num_select individuals
+    # Select num_select individuals
     for i in range(num_select):
-        # randomly select heat_size individuals from the population
+        # Randomly select heat_size individuals from the population
         heat = []
         for individual in range(heat_size):
-            # add a random individual to heat
+            # Add a random individual to heat
             heat.append(population[int(random.random() * len(population))])
 
-        # find the best individual from heat and add it to selected
+        # Find the best individual from heat and add it to selected
         # ASSUMING MINIMIZATION
         if heat != []:
             min = evaluate(nn, heat[0])
             min_index = 0
 
+            # Evaluate each individual and keep the one with the lowest error
             for contestant in heat:
                 temp_fitness = evaluate(nn, contestant)
                 if temp_fitness < min:
@@ -138,40 +117,46 @@ def tournament_selection(nn, population, heat_size):
     return selected
 
 
+# Train a neural network with GA
 def train(nn, max_gen, pop_size, crossover_rate, mutation_rate, process_id=0):
     generation = 0
     population = init_population(nn, pop_size)
-    heat_size = 10
     mean_error = []
 
-    #print("Starting GA training at {0}".format(time.ctime(time.time())))
+    # print("Starting GA training at {0}".format(time.ctime(time.time())))
 
-    # TODO stop when converged?
+    # Loop until maximum generations
     while (generation < max_gen):
-        # Select the best parents and use them to produce pop_size children and overwrite the entire population
+        # Use rank selection to get a new pop_size population of "best" parents
         temp_tuple = rank_selection(nn, population, pop_size)
+        # Perform crossover on the parents to create pop_size children and wipe the whole population
         population = crossover_multipoint(temp_tuple[0], pop_size, crossover_rate)
-        # population = crossover_multipoint(tournament_selection(nn, population, heat_size), pop_size)
 
         # Try to mutate each child
         for i in range(pop_size):
             population[i] = mutate(population[i], mutation_rate)
 
+        # Get the mean error of the population and track it for each generation
         temp_mean = stats.mean(temp_tuple[1])
         mean_error.append(temp_mean)
 
+        # Print the progress periodically
         if (generation % 100 == 0):
             print("GA{2}: Generation {0}, Mean Error: {1}".format(generation, temp_mean, process_id))
+
         # Move to the next generation
         generation += 1
 
-    #print("Finished GA training at {0}".format(time.ctime(time.time())))
+    # print("Finished GA training at {0}".format(time.ctime(time.time())))
     return mean_error
 
+
+# Test run if this file is ran on its own
 if __name__ == '__main__':
-    num_inputs = 2
-    training_data = rosen.generate(0, num_inputs)
-    nn = MLP.MLP(num_inputs, 1, 10, training_data)
+    af_path = 'datasets\\converted\\airfoil.csv'
+    df = pandas.read_csv(af_path, header=None)
+    training_data = df.values.tolist()
+    nn = MLP.MLP(len(training_data[0]) - 1, 1, 10, training_data)
     mean_error = train(nn, 2000, 100, 0.5, 0.1)
 
     plt.plot(mean_error, label='GA')
@@ -181,72 +166,3 @@ if __name__ == '__main__':
     plt.title('GA')
     plt.legend()
     plt.show()
-
-'''
-Legacy Code
-p1 = []  # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-p2 = []  # [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-# Flattens a ragged 2-d array into a 1-d array
-def flatten(input):
-    return [item for sublist in input for item in sublist]
-
-
-def selection(population):
-    pass
-
-def test_cross_mutate():
-    print('parameters')
-    print('crossover_rate: ' + str(crossover_rate))
-    print('mutation_rate: ' + str(mutation_rate))
-
-    p1 = []
-    p2 = []
-    for i in range(10):
-        p1.append(0)
-        p2.append(1)
-
-    parents = [p1, p2]
-
-    print('\nparents')
-    for parent in parents:
-        print(str(parent))
-
-    children = crossover_multipoint([p1, p2], 10)
-    print('\nchildren')
-    for individual in children:
-        print(str(individual))
-
-    for individual in children:
-        individual = mutate(individual)
-
-    print('\nmutated children')
-    for individual in children:
-        print(str(individual))
-
-
-def test_select():
-    population_size = 50
-    heat_size = 5
-    length = 4
-
-    population = []
-
-    for i in range(population_size):
-        population.append(generate_random_individual(length))
-
-    print('\ntotal')
-    original_sum = 0
-    sum = 0
-    for i in population:
-        original_sum += i[0]
-
-    population = rank_selection(population)
-
-    for i in population:
-        sum += i[0]
-
-    print(str(original_sum) + '\n' + str(sum))
-
-
-'''
