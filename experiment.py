@@ -15,7 +15,6 @@ import MLP
 import GA
 import ES
 import DE
-import rosen_generator as rosen
 import matplotlib.pyplot as plt
 import multiprocessing
 import time
@@ -181,11 +180,217 @@ def get_dataset(csv_path):
     return df.values.tolist()
 
 
+def choose_dataset():
+    valid_response = False
+    print("Choose a dataset:")
+    print("1. Airfoil\n2. Concrete\n3. Forest Fires\n4. Machine\n5. Yacht\n6. Exit")
+    while not valid_response:
+        try:
+            choice = int(input("> "))
+        except(ValueError):
+            print("Please enter a valid response")
+            continue
+
+        if choice == 1:
+            valid_response = True
+            return ('airfoil', get_dataset('datasets\\converted\\airfoil.csv'))
+
+        elif choice == 2:
+            valid_response = True
+            return ('concrete', get_dataset('datasets\\converted\\concrete.csv'))
+
+        elif choice == 3:
+            valid_response = True
+            return ('forestfires', get_dataset('datasets\\converted\\forestfires.csv'))
+
+        elif choice == 4:
+            valid_response = True
+            return ('machine', get_dataset('datasets\\converted\\machine.csv'))
+
+        elif choice == 5:
+            valid_response = True
+            return ('yacht', get_dataset('datasets\\converted\\yacht.csv'))
+
+        elif choice == 6:
+            valid_response = True
+            break
+
+        else:
+            print("Please enter a valid response")
+
+
+def plot_choice(filename):
+    data = pandas.read_csv('Results\\' + filename + '.csv', header=None).T
+    plt.plot(data)
+    plt.title(filename + ' Dataset')
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.show()
+
+
+def choose_algorithm():
+    # Maximum number of generations for all Evolutionary Algorithms (EA): GA, ES, DE
+    max_gen = 1000
+    # Maximum population size for EA
+    pop_size = 100
+    # Crossover rate for all EA
+    crossover_rate = 0.5
+    # Mutation rate for GA
+    mutation_rate = 0.1
+    # Lambda for ES(mu + lambda)
+    num_children = 100
+    # Beta for DE
+    beta = 0.1
+    # Maximum number of iterations for backprop
+    max_iter = 10000
+
+    valid_response = False
+    print("Choose an algorithm to train with:")
+    print("1. Genetic Algorithm\n2. Evolutionary Strategy\n3. Differential Evolution\n4. Backpropagation\n5. Exit")
+    while not valid_response:
+        try:
+            choice = int(input("> "))
+        except(ValueError):
+            print("Please enter a valid response")
+            continue
+
+        if choice == 1:
+            valid_response = True
+            temp = choose_dataset()
+            print("Creating GA Process with {0} generations and {1} population size".format(max_gen, pop_size))
+            ga_proccess = GAProcess(0, temp[0], temp[1], len(temp[1][0]) - 1, max_gen, pop_size, crossover_rate,
+                                    mutation_rate)
+            ga_proccess.start()
+            ga_proccess.join()
+            plot_choice('GA {0}'.format(temp[0]))
+
+        elif choice == 2:
+            valid_response = True
+            temp = choose_dataset()
+            print("Creating ES Process with {0} generations and {1} population size".format(max_gen, pop_size))
+            es_process = ESProcess(0, temp[0], temp[1], len(temp[1][0]) - 1, max_gen, pop_size, crossover_rate,
+                                   pop_size)
+            es_process.start()
+            es_process.join()
+            plot_choice('ES {0}'.format(temp[0]))
+
+        elif choice == 3:
+            valid_response = True
+            temp = choose_dataset()
+            print("Creating DE Process with {0} generations and {1} population size".format(max_gen, pop_size))
+            de_process = DEProcess(0, temp[0], temp[1], len(temp[1][0]) - 1, max_gen, pop_size, crossover_rate, beta)
+            de_process.start()
+            de_process.join()
+            plot_choice('DE {0}'.format(temp[0]))
+
+        elif choice == 4:
+            valid_response = True
+            temp = choose_dataset()
+            print("Creating BP Process with {0} iterations".format(max_iter))
+            bp_process = BPProcess(0, temp[0], temp[1], len(temp[1][0]) - 1, max_iter)
+            bp_process.start()
+            bp_process.join()
+            plot_choice('BP {0}'.format(temp[0]))
+
+        elif choice == 5:
+            valid_response = True
+            break
+
+        else:
+            print("Please enter a valid response")
+
+
+def submission_test():
+    data = get_dataset('datasets\\converted\\machine.csv')
+    algorithms = ['BP', 'DE', 'ES', 'GA']
+    max_gen = 1000
+    # Maximum population size for EA
+    pop_size = 100
+    # Crossover rate for all EA
+    crossover_rate = 0.5
+    # Mutation rate for GA
+    mutation_rate = 0.1
+    # Lambda for ES(mu + lambda)
+    num_children = 100
+    # Beta for DE
+    beta = 0.1
+    # Maximum number of iterations for backprop
+    max_iter = 10000
+    # List of all process objects
+    processes = []
+    # Number of processes, used for unique IDs
+    process_counter = 0
+
+    num_inputs = len(data[0]) - 1
+
+    processes.append(
+        GAProcess(process_counter, 'machine', data, num_inputs, max_gen, pop_size, crossover_rate, mutation_rate))
+    processes[process_counter].start()
+    process_counter += 1
+
+    processes.append(
+        ESProcess(process_counter, 'machine', data, num_inputs, max_gen, pop_size, crossover_rate, num_children))
+    processes[process_counter].start()
+    process_counter += 1
+
+    processes.append(
+        DEProcess(process_counter, 'machine', data, num_inputs, max_gen, pop_size, crossover_rate, beta))
+    processes[process_counter].start()
+    process_counter += 1
+
+    processes.append(BPProcess(process_counter, 'machine', data, num_inputs, max_iter))
+    processes[process_counter].start()
+    process_counter += 1
+
+    for process in processes:
+        process.join()
+
+    plt.figure(figsize=(25.5, 13.5), dpi=100)
+
+    for alg in algorithms:
+        temp_df = pandas.read_csv('Results\\' + alg + ' machine.csv', header=None).T
+        plt.plot(temp_df, label=alg)
+
+    plt.title('Machine Dataset')
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Squared Error')
+    plt.yscale('log')
+    plt.xlim(-100, 1000)
+    plt.ylim(0, 100000)
+    plt.legend()
+    plt.show()
+
 def main():
     valid_response = False
+    print("Choose an option:")
+    print("1. Perform Experiment (WARNING CPU INTENSIVE)\n2. Choose Algorithm\n3. Run Submission Test\n4. Exit")
     while not valid_response:
-        print("1. Perform Experiment (WARNING CPU INTENSIVE)\n2. Choose Algorithm\n3. Run Submission Test\n")
-        choice = input("Choose an option number > ")
+        try:
+            choice = int(input("> "))
+        except(ValueError):
+            print("Please enter a valid response")
+            continue
+
+        if choice == 1:
+            valid_response = True
+            perform_experiment()
+
+        elif choice == 2:
+            valid_response = True
+            choose_algorithm()
+
+        elif choice == 3:
+            valid_response = True
+            submission_test()
+
+        elif choice == 4:
+            valid_response = True
+            break
+
+        else:
+            print("Please enter a valid response")
+
     '''num_process = 4
     results = multiprocessing.Queue()
     ga_processes = []
@@ -219,4 +424,4 @@ def main():
 
 
 if __name__ == '__main__':
-    perform_experiment()
+    main()

@@ -88,7 +88,7 @@ def train(nn, max_gen, pop_size, num_children, crossover_rate, process_id=0):
         temp_mean = stats.mean(temp_tuple[1])
         mean_error.append(temp_mean)
 
-        if (generation % 1000 == 0):
+        if (generation % 100 == 0):
             print("ES{2}: Generation {0}, Mean Error: {1}".format(generation, temp_mean, process_id))
 
         # Move to the next generation

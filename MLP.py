@@ -89,7 +89,7 @@ class MLP:
             temp_mean = self.calc_avg_error()
             error_vector.append(temp_mean)
             if i % 1000 == 0:
-                print('BP{2}: Iteration {0}, Mean Error:{1}'.format(i, temp_mean, process_ID))
+                print('BP{2}: Iteration {0}, Mean Error: {1}'.format(i, temp_mean, process_ID))
 
         return error_vector
 
