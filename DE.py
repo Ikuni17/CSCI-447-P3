@@ -107,16 +107,21 @@ def train(nn, max_gen, pop_size, crossover_rate, beta, process_ID=0):
 
 # Test run if this file is ran on its own
 if __name__ == '__main__':
-    af_path = 'datasets\\converted\\airfoil.csv'
+    af_path = 'datasets\\converted\\machine.csv'
     df = pandas.read_csv(af_path, header=None)
     training_data = df.values.tolist()
-    nn = MLP.MLP(len(training_data[0]) - 1, 1, 10, training_data)
-    mean_error = train(nn, 2000, 100, 0.5, 0.1)
+    nn = MLP.MLP(len(training_data[0]) - 1, 1, 100, training_data)
+    mean_error = train(nn, 2000, 100, 0.5, 0.5)
+    mean_error1 = train(nn, 2000, 100, 0.7, 0.5)
+    mean_error2 = train(nn, 2000, 100, 0.9, 0.5)
 
-    plt.plot(mean_error, label='DE')
+    plt.plot(mean_error, label='0.5 Crossover')
+    plt.plot(mean_error1, label='0.7 Crossover')
+    plt.plot(mean_error2, label='0.9 Crossover')
     plt.xlabel('Generation')
     plt.ylabel('Mean Squared Error')
     plt.yscale('log')
-    plt.title('DE')
+    plt.title('DE Crossover Comparison')
     plt.legend()
+    plt.savefig('DE Crossover.png')
     plt.show()

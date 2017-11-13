@@ -130,16 +130,23 @@ def train(nn, max_gen, pop_size, num_children, crossover_rate, process_id=0):
 
 # Test run if this file is ran on its own
 if __name__ == '__main__':
-    af_path = 'datasets\\converted\\airfoil.csv'
+    af_path = 'datasets\\converted\\machine.csv'
     df = pandas.read_csv(af_path, header=None)
     training_data = df.values.tolist()
     nn = MLP.MLP(len(training_data[0]) - 1, 1, 10, training_data)
     mean_error = train(nn, 2000, 100, 100, 0.5)
+    mean_error1 = train(nn, 2000, 100, 100, 0.7)
+    mean_error2 = train(nn, 2000, 100, 100, 0.9)
+    #mean_error3 = train(nn, 2000, 100, 250, 0.5)
 
-    plt.plot(mean_error, label='ES')
+    plt.plot(mean_error, label='0.5')
+    plt.plot(mean_error1, label='0.7')
+    plt.plot(mean_error2, label='0.9')
+    #plt.plot(mean_error3, label='250')
     plt.xlabel('Generation')
     plt.ylabel('Mean Squared Error')
     plt.yscale('log')
-    plt.title('ES')
+    plt.title('ES Crossover')
     plt.legend()
+    plt.savefig('ES Crossover.png')
     plt.show()

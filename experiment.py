@@ -141,7 +141,7 @@ def perform_experiment():
     # Lambda for ES(mu + lambda)
     num_children = 100
     # Beta for DE
-    beta = 0.1
+    beta = 0.5
     # Maximum number of iterations for backprop
     max_iter = 10000
     # List of all process objects
@@ -239,11 +239,11 @@ def plot_choice(filename):
 # Allow the user to choose an algorithm to test
 def choose_algorithm():
     # Maximum number of generations for all Evolutionary Algorithms (EA): GA, ES, DE
-    max_gen = 1000
+    max_gen = 10000
     # Maximum population size for EA
     pop_size = 100
     # Crossover rate for all EA
-    crossover_rate = 0.5
+    crossover_rate = 0.8
     # Mutation rate for GA
     mutation_rate = 0.1
     # Lambda for ES(mu + lambda)

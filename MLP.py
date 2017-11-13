@@ -82,7 +82,8 @@ class MLP:
         return individual
 
     # Train the neural network with forward and backward propagation
-    def train(self, iterations=1000, process_ID=0):
+    def train(self, iterations=1000, process_ID=0, learning_rate=0.01):
+        self.learning_rate = learning_rate
         error_vector = []
 
         for i in range(iterations):
@@ -172,18 +173,28 @@ class MLP:
 
 # Used for testing this file on its own
 def main():
-    af_path = 'datasets\\converted\\airfoil.csv'
+    af_path = 'datasets\\converted\\machine.csv'
     df = pandas.read_csv(af_path, header=None)
     training_data = df.values.tolist()
     mlp = MLP(len(training_data[0]) - 1, 1, 10, training_data)
-    error_vector = mlp.train(iterations=1000)
+    error_vector = mlp.train(iterations=10000, learning_rate=0.1)
+    mlp = MLP(len(training_data[0]) - 1, 1, 10, training_data)
+    error_vector1 = mlp.train(iterations=10000, learning_rate=0.01)
+    mlp = MLP(len(training_data[0]) - 1, 1, 10, training_data)
+    error_vector2 = mlp.train(iterations=10000, learning_rate=0.001)
+    mlp = MLP(len(training_data[0]) - 1, 1, 10, training_data)
+    error_vector3 = mlp.train(iterations=10000, learning_rate=0.0001)
 
-    plt.plot(error_vector, label='BP')
+    plt.plot(error_vector, label='0.1')
+    plt.plot(error_vector1, label='0.01')
+    plt.plot(error_vector2, label='0.001')
+    plt.plot(error_vector3, label='0.0001')
     plt.xlabel('Iteration')
     plt.ylabel('Mean Squared Error')
     plt.yscale('log')
-    plt.title('BP')
+    plt.title('BP Learning Rate')
     plt.legend()
+    plt.savefig('BP Learning Rate.png')
     plt.show()
 
 
