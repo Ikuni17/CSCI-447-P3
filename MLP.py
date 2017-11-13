@@ -99,7 +99,7 @@ class MLP:
 
         return error_vector
 
-    # updates the activation arrays and the output
+    # Updates the activation arrays and the output for all inputs
     def feedforward(self):
         for i in range(len(self.weights)):
             temp = np.zeros((len(self.weights[i]), len(self.activation[0][0])))
@@ -112,20 +112,29 @@ class MLP:
             else:
                 self.activation[i + 1] = np.tanh(temp)
 
+    # Backpropagate through the neural network to update weights
     def backprop(self):
+        # Calculate the error for the most recent output
         errors = np.subtract(self.activation[len(self.activation) - 1], self.train_out.transpose())[0]
 
+        # Start from the output layer
         for i, layer in reversed(list(enumerate(self.weights))):
+            # Iterate through all nodes
             for j in range(len(layer)):
+                # Get the input and output for each node
                 activ_out = self.activation[i + 1][j]
                 activ_in = self.activation[i][0]
                 update = 0
+
+                # Calculate the modifier based on each outputs error
                 for k in range(len(errors)):
+                    # Check if we're at the output layer
                     if i == len(self.weights) - 1:
                         modifier = -errors[k] * activ_in[k]
                     else:
                         modifier = activ_in[k] * errors[k] * (1 - (activ_out[k] ** 2))
                     update = update - modifier
+                # Update the weight after the modifier has been completely calculated
                 self.weights[i][j] = self.weights[i][j] - self.learning_rate * update * (1 / len(self.train_out))
 
     def print_nn(self):
